@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SSRP HELPER - ZOOM EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --core-background-hex: #050505;
+            --panel-background-hex: #0a0a0a;
+            --input-field-background: #111111;
+            --border-line-color: #222222;
+            --primary-accent-color: #dc2626;
+            --accent-hover-state: #ef4444;
+            --typography-main: #ffffff;
+            --typography-subtle: #555555;
+            --status-success: #10b981;
+        }
+
+        * { box-sizing: border-box; outline: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        ::-webkit-scrollbar { width: 4px; background: var(--core-background-hex); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        body {
+            margin: 0; background-color: var(--core-background-hex); color: var(--typography-main);
+            font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden;
+        }
+
+        .application-main-layout-wrapper { display: flex; width: 100%; height: 100%; }
+
+        .sidebar-control-panel-container {
+            width: 450px; background: var(--panel-background-hex); border-right: 1px solid var(--border-line-color);
+            display: flex; flex-direction: column; padding: 20px; gap: 15px;
+            overflow-y: auto; z-index: 50; box-shadow: 10px 0 50px rgba(0,0,0,0.7);
+            position: relative;
+        }
+
+        .brand-identity-header {
+            font-family: 'Oswald', sans-serif; font-size: 24px; text-transform: uppercase;
+            letter-spacing: 1px; border-bottom: 2px solid var(--primary-accent-color);
+            padding-bottom: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand-identity-header span { color: var(--primary-accent-color); }
+        
+        .help-trigger-btn {
+            background: none; border: 1px solid #333; color: #666; font-family: 'Inter'; font-size: 10px; 
+            padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold;
+        }
+        .help-trigger-btn:hover { border-color: var(--primary-accent-color); color: var(--typography-main); }
+
+        .ui-section-designator-label {
+            font-size: 11px; font-weight: 800; color: var(--typography-subtle);
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+            margin-top: 10px; display: block;
+        }
+
+        .aspect-ratio-grid-selector { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+        .ratio-selection-button {
+            flex: 1; background: var(--input-field-background); border: 1px solid var(--border-line-color);
+            color: #888; padding: 10px; font-size: 11px; font-weight: 700;
+            cursor: pointer; border-radius: 4px; white-space: nowrap; min-width: 60px;
+        }
+        .ratio-selection-button:hover, .ratio-selection-button:active { background: #222; color: white; border-color: #555; }
+
+        .file-upload-interface-area {
+            position: relative; width: 100%; height: 60px; background: var(--input-field-background);
+            border: 1px dashed var(--border-line-color); border-radius: 6px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin-top: 8px;
+        }
+        .file-upload-interface-area:hover { border-color: var(--primary-accent-color); color: var(--primary-accent-color); }
+        .file-upload-interface-area span { font-size: 12px; font-weight: 700; }
+        .hidden-file-input-trigger { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+        .resolution-input-grouping { display: flex; gap: 8px; align-items: center; }
+        .dimension-input-field {
+            background: var(--input-field-background); border: 1px solid var(--border-line-color); color: #fff;
+            padding: 12px; font-family: monospace; font-size: 12px; width: 100%; border-radius: 4px;
+        }
+
+        .typography-font-selector-dropdown {
+            width: 100%; background: var(--input-field-background); border: 1px solid var(--border-line-color);
+            color: #fff; padding: 12px; font-size: 12px; border-radius: 4px; cursor: pointer;
+        }
+
+        .chatlog-toolbar-wrapper {
+            background: #151515; border-radius: 6px 6px 0 0; border: 1px solid var(--border-line-color); border-bottom: none;
+            padding: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+        }
+        .toolbar-primary-actions { display: flex; flex-wrap: wrap; gap: 5px; }
+        .toolbar-temporal-navigation { display: flex; gap: 5px; margin-left: auto; }
+        
+        .toolbar-action-button {
+            background: #222; border: none; color: #ccc; padding: 8px 12px; font-size: 11px; font-weight: 600; cursor: pointer; border-radius: 4px;
+        }
+        .toolbar-action-button:hover, .toolbar-action-button:active { background: #333; color: white; }
+        .toolbar-action-button.icon-mode { padding: 8px 14px; font-size: 16px; }
+        .toolbar-action-button.danger-mode { color: #f87171; border: 1px solid #7f1d1d; }
+        .toolbar-action-button.danger-mode:hover { background: #7f1d1d; color: white; }
+        
+        .chromatic-selector-wrapper { display: flex; align-items: center; gap: 8px; margin-left: 5px; }
+        .chromatic-swatch { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; border: 1px solid #444; }
+        
+        .text-editor-input-area {
+            width: 100%; height: 150px; background: var(--input-field-background); border: 1px solid var(--border-line-color);
+            color: #e5e5e5; font-family: 'JetBrains Mono', monospace; font-size: 14px;
+            padding: 15px; border-radius: 0 0 6px 6px; resize: vertical; white-space: pre; line-height: 1.4;
+        }
+        .text-editor-input-area:focus { border-color: #444; }
+
+        .parameter-adjustment-row { display: flex; align-items: center; gap: 10px; background: var(--input-field-background); padding: 12px 15px; border-radius: 6px; }
+        input[type="range"] { flex: 1; -webkit-appearance: none; background: #333; height: 6px; border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: var(--primary-accent-color); border-radius: 50%; cursor: pointer; }
+        .parameter-value-display { font-family: monospace; font-size: 11px; width: 35px; text-align: right; color: #888; }
+
+        .layer-selector-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;
+        }
+        .layer-btn {
+            background: #151515; border: 1px solid #333; color: #666; padding: 15px;
+            font-size: 12px; font-weight: 800; cursor: pointer; border-radius: 6px;
+            transition: 0.2s; text-align: center;
+        }
+        .layer-btn:hover { background: #222; color: #fff; }
+        .layer-btn.active-layer {
+            background: rgba(220, 38, 38, 0.1); border-color: var(--primary-accent-color); color: var(--primary-accent-color);
+        }
+
+        .global-action-button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .global-action-button {
+            padding: 20px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .download-action { background: var(--primary-accent-color); color: white; }
+        .download-action:hover { background: var(--accent-hover-state); }
+        .cloud-upload-action { background: #222; color: #fff; border: 1px solid #333; }
+        .cloud-upload-action:hover { background: #4338ca; border-color: #4338ca; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 20px;
+        }
+        .modal-content-box {
+            background: #0a0a0a; border: 1px solid #333; width: 100%; max-width: 500px; padding: 25px; border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8); position: relative; max-height: 80vh; overflow-y: auto;
+        }
+        .modal-close-btn {
+            position: absolute; top: 15px; right: 15px; background: none; border: none; color: #666; font-size: 24px; cursor: pointer;
+        }
+        .modal-close-btn:hover { color: #fff; }
+        .modal-title { font-family: 'Oswald'; font-size: 24px; color: #fff; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .modal-body { font-size: 13px; line-height: 1.6; color: #ccc; }
+        .modal-body h4 { color: var(--primary-accent-color); margin-bottom: 5px; margin-top: 15px; }
+        .modal-body ul { padding-left: 20px; margin: 0; }
+
+        .visual-rendering-stage-wrapper {
+            flex: 1; display: flex; flex-direction: column; background: #000; overflow: hidden;
+            position: relative;
+        }
+
+        .visual-rendering-stage-container {
+            flex: 1; 
+            background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px);
+            background-size: 20px 20px; display: flex; align-items: center; justify-content: center; padding: 0;
+            position: relative; transition: border 0.3s ease; overflow: hidden; cursor: grab;
+        }
+        
+        .visual-rendering-stage-container:active { cursor: grabbing; }
+
+        .visual-rendering-stage-container.drag-active-state {
+            background-color: rgba(220, 38, 38, 0.1);
+            box-shadow: inset 0 0 100px rgba(220, 38, 38, 0.5);
+            border: 2px dashed var(--primary-accent-color);
+        }
+        .visual-rendering-stage-container.drag-active-state::after {
+            content: 'DROP MULTIPLE IMAGES HERE';
+            position: absolute; color: white; font-family: 'Oswald'; font-size: 40px; font-weight: 700; pointer-events: none;
+            top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;
+        }
+
+        canvas { 
+            max-width: 100%; max-height: 100%; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.8); border: 1px solid #222; 
+            transform-origin: center; transition: transform 0.05s linear;
+        }
+
+        /* ZOOM CONTROLS (FLOATING) */
+        .zoom-controls-wrapper {
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 5px; background: rgba(0,0,0,0.7); padding: 5px;
+            border-radius: 30px; border: 1px solid #444; z-index: 50; backdrop-filter: blur(2px);
+        }
+        .zoom-btn {
+            background: #222; border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%;
+            font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .zoom-btn:hover { background: var(--primary-accent-color); }
+        .zoom-label {
+            color: #fff; font-size: 10px; font-family: monospace; display: flex; align-items: center; padding: 0 10px;
+        }
+        
+        /* FIT VIEW BUTTON (FLOATING) */
+        .reset-view-btn {
+            position: absolute; bottom: 120px; right: 20px;
+            background: rgba(0,0,0,0.7); border: 1px solid #444; color: white;
+            padding: 8px 12px; border-radius: 20px; font-size: 10px; font-weight: bold;
+            cursor: pointer; z-index: 50; display: none; backdrop-filter: blur(2px);
+        }
+        .reset-view-btn:hover { background: var(--primary-accent-color); border-color: var(--primary-accent-color); }
+
+        .multi-asset-management-strip {
+            height: 90px; background: #080808; border-top: 1px solid var(--border-line-color);
+            display: flex; gap: 8px; padding: 10px; overflow-x: auto; z-index: 60;
+        }
+        .multi-asset-management-strip::-webkit-scrollbar { height: 6px; }
+        .multi-asset-management-strip::-webkit-scrollbar-thumb { background: #333; }
+
+        .asset-thumbnail-container {
+            min-width: 100px; max-width: 100px; height: 100%; border: 1px solid #333; border-radius: 4px;
+            overflow: hidden; position: relative; cursor: pointer; transition: 0.2s;
+            background-size: cover; background-position: center;
+        }
+        .asset-thumbnail-container:hover { border-color: #666; }
+        .asset-thumbnail-container.active-asset-state { border-color: var(--primary-accent-color); box-shadow: 0 0 10px rgba(220, 38, 38, 0.3); }
+        
+        .asset-delete-trigger {
+            position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.8); color: #ef4444;
+            width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: bold; border-radius: 0 0 0 4px; z-index: 2;
+        }
+        .asset-delete-trigger:hover { background: #ef4444; color: white; }
+
+        .application-footer-copyright {
+            margin-top: 30px; border-top: 1px solid #222; padding-top: 15px; padding-bottom: 20px;
+            text-align: center; font-family: 'Inter', sans-serif; font-size: 10px; color: #444; letter-spacing: 0.5px;
+        }
+
+        #systemStatusIndicator { font-size: 10px; text-align: center; color: #666; margin-top: 5px; font-family: monospace; }
+
+        @media (max-width: 768px) {
+            body { 
+                flex-direction: column; 
+                height: 100%; 
+                overflow: auto; 
+            }
+
+            .application-main-layout-wrapper { 
+                flex-direction: column; 
+                height: auto; 
+                overflow: visible;
+            }
+
+            .visual-rendering-stage-wrapper { 
+                height: 50vh; 
+                width: 100%; 
+                order: 1; 
+                position: sticky; top: 0; z-index: 100;
+                border-bottom: 2px solid var(--primary-accent-color);
+                flex: none;
+                background: #000;
+            }
+            .visual-rendering-stage-container { padding: 0; }
+            
+            .reset-view-btn { display: block; }
+
+            .sidebar-control-panel-container { 
+                width: 100%; 
+                height: auto; 
+                order: 2; 
+                border-right: none; 
+                padding: 15px;
+                overflow: visible;
+                padding-bottom: 80px;
+            }
+
+            .text-editor-input-area { height: 180px; }
+            .multi-asset-management-strip { height: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="toggleHelpModal()">×</button>
+            <div class="modal-title">HELP & SUGGESTIONS</div>
+            <div class="modal-body">
+                <h4>1. MULTI-ZONE SYSTEM</h4>
+                <ul>
+                    <li>Gunakan tombol <b>TOP LEFT</b>, <b>TOP RIGHT</b>, dsb untuk memilih zona.</li>
+                    <li>Setiap zona berdiri sendiri.</li>
+                </ul>
+
+                <h4>2. ZOOM & PAN (NEW!)</h4>
+                <ul>
+                    <li>Gunakan tombol <b>(+)</b> dan <b>(-)</b> untuk Zoom.</li>
+                    <li><b>Geser (Drag)</b> gambar untuk melihat bagian tertutup.</li>
+                    <li>Tombol <b>FIT VIEW</b> untuk reset posisi.</li>
+                </ul>
+
+                <h4>3. PER-IMAGE MEMORY</h4>
+                <ul>
+                    <li>Setiap gambar menyimpan teksnya masing-masing.</li>
+                </ul>
+
+                <h4>4. TIPS</h4>
+                <ul>
+                    <li>Gunakan <b>[Says]</b> dan <b>[Shouts]</b> untuk format otomatis.</li>
+                </ul>
+
+                <br>
+                <div style="text-align:center; color:#666; font-size:11px;">SSRP HELPER v15 ZOOM EDITION</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="application-main-layout-wrapper">
+        <div class="sidebar-control-panel-container">
+            <div class="brand-identity-header">
+                <div>[ANDROID] SSRP <span>HELPER</span></div>
+                <button class="help-trigger-btn" onclick="toggleHelpModal()">[?] HELPS</button>
+            </div>
+
+            <div>
+                <span class="ui-section-designator-label">Ukuran dan resolusi</span>
+                <p style="font-size:10px; color:#666; margin-top:0;">Pilih atau atur ukuran dan resolusi sesuka mu</p>
+                
+                <div class="aspect-ratio-grid-selector">
+                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('16:9')">16:9</button>
+                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('4:3')">4:3</button>
+                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('1:1')">1:1</button>
+                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('3:4')">3:4</button>
+                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('9:16')">9:16</button>
+                </div>
+
+                <div class="resolution-input-grouping">
+                    <input type="number" id="inputDimensionWidth" class="dimension-input-field" value="1920" placeholder="Width" onchange="executeManualResolutionAdjustmentSequence()">
+                    <span style="color:#444">x</span>
+                    <input type="number" id="inputDimensionHeight" class="dimension-input-field" value="1080" placeholder="Height" onchange="executeManualResolutionAdjustmentSequence()">
+                </div>
+                
+                <div class="file-upload-interface-area">
+                    <span>CARI ATAU TARUH FOTO DISINI</span>
+                    <input type="file" class="hidden-file-input-trigger" accept="image/*" multiple onchange="handleIncomingMediaStreamFromUserInterface(this)">
+                </div>
+                <button class="toolbar-action-button danger-mode" style="width:100%; margin-top:5px; padding:12px;" onclick="executeGlobalAssetPurgeSequence()">RESET / HAPUS SEMUA FOTO</button>
+            </div>
+
+            <div>
+                <span class="ui-section-designator-label">ZONA CHATLOG</span>
+                <div class="layer-selector-grid">
+                    <div id="btn-TL" class="layer-btn active-layer" onclick="switchActiveLayerContext('TL')">KIRI ATAS</div>
+                    <div id="btn-TR" class="layer-btn" onclick="switchActiveLayerContext('TR')">KANAN ATAS</div>
+                    <div id="btn-BL" class="layer-btn" onclick="switchActiveLayerContext('BL')">KIRI BAWAH</div>
+                    <div id="btn-BR" class="layer-btn" onclick="switchActiveLayerContext('BR')">KANAN BAWAH</div>
+                </div>
+            </div>
+
+            <div>
+                <span class="ui-section-designator-label">POSISI CHATLOG (EDITING: <span id="currentLayerLabel" style="color:#dc2626">KIRI ATAS</span>)</span>
+                <div class="chatlog-toolbar-wrapper">
+                    <div class="toolbar-primary-actions">
+                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('says: ')">says</button>
+                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('shouts: ')">shouts</button>
+                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('* Player_Name')">/Me</button>
+                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('Player_Name ')">Name</button>
+                        
+                        <div class="chromatic-selector-wrapper">
+                            <div class="chromatic-swatch" style="background:#ef4444" onclick="embedChromaticHexCodeToSelection('{FF0000}')"></div>
+                            <div class="chromatic-swatch" style="background:#3b82f6" onclick="embedChromaticHexCodeToSelection('{3498db}')"></div>
+                            <div class="chromatic-swatch" style="background:#10b981" onclick="embedChromaticHexCodeToSelection('{33AA33}')"></div>
+                            <div class="chromatic-swatch" style="background:#eab308" onclick="embedChromaticHexCodeToSelection('{FFFF00}')"></div>
+                            <div class="chromatic-swatch" style="background:#c084fc" onclick="embedChromaticHexCodeToSelection('{C2A2DA}')"></div>
+                            <div class="chromatic-swatch" style="background:#ffffff; border:1px solid #fff" onclick="triggerSystemColorPickerInterface()"></div>
+                            <input type="color" id="nativeSystemColorPicker" style="visibility:hidden; width:0; height:0" onchange="embedChromaticHexCodeToSelection(this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <textarea id="primaryTextInputInterface" class="text-editor-input-area" placeholder="Masukan Chatlog anda disini! " oninput="updateActiveLayerData()"></textarea>
+                
+                <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                    <button class="toolbar-action-button" onclick="executeTimestampPurgeSequence()">HAPUS [00:00:00]</button>
+                    <button class="toolbar-action-button" onclick="executeGlobalTextErasureSequence()">HAPUS ZONA INI</button>
+                </div>
+            </div>
+
+            <div>
+                <span class="ui-section-designator-label">TEMPAT UNTUK CUSTOM</span>
+                
+                <div class="parameter-adjustment-row" style="margin-bottom: 5px;">
+                    <select id="fontFamilySelector" class="typography-font-selector-dropdown" onchange="initiateCanvasRenderingSequence()">
+                        <option value="Arial">Arial (Standard)</option>
+                        <option value="Inter">Inter (Modern UI)</option>
+                        <option value="JetBrains Mono">JetBrains Mono (Code)</option>
+                        <option value="Courier New">Courier New (Classic)</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Comic Sans MS">Comic Sans (Fun)</option>
+                        <option value="Georgia">Georgia (Classic)</option>
+                        <option value="Poppins">Poppins (Modern)</option>
+                    </select>
+                </div>
+
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">SIZE</span>
+                    <input type="range" id="inputFontSizeController" min="10" max="100" value="18" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayFontSize">18</span>
+                </div>
+                <div style="height:5px"></div>
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">SPACE</span>
+                    <input type="range" id="inputLineHeightController" min="10" max="120" value="22" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayLineHeight">22</span>
+                </div>
+                <div style="height:5px"></div>
+                
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">POS X</span>
+                    <input type="range" id="inputPositionXController" min="0" max="100" value="2" step="0.1" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayPositionX">2%</span>
+                </div>
+                <div style="height:5px"></div>
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">POS Y</span>
+                    <input type="range" id="inputPositionYController" min="0" max="100" value="5" step="0.1" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayPositionY">5%</span>
+                </div>
+            </div>
+
+            <div class="global-action-button-grid">
+                <button class="global-action-button cloud-upload-action" onclick="transmitImageDataToImgurAPI()">IMGUR UPLOAD</button>
+                <button class="global-action-button download-action" onclick="generateAndDownloadFinalArtifact()">DOWNLOAD</button>
+            </div>
+            <div id="systemStatusIndicator">IMGUR UPLOAD LAGI BUG!!.</div>
+
+            <footer class="application-footer-copyright">
+                &copy; 2025 PuddingMilki. All Rights Reserved. <br>
+                SSRP HELPER FOR SAMP ROLEPLAY COMMUNITIES.
+            </footer>
+        </div>
+
+        <div class="visual-rendering-stage-wrapper">
+            <div class="visual-rendering-stage-container" id="primaryRenderingStageContainer">
+                <canvas id="mainGraphicsRenderingContext"></canvas>
+            </div>
+            
+            <div class="zoom-controls-wrapper">
+                <button class="zoom-btn" onclick="adjustZoom('out')">-</button>
+                <span class="zoom-label" id="zoomLevelDisplay">100%</span>
+                <button class="zoom-btn" onclick="adjustZoom('in')">+</button>
+            </div>
+
+            <button class="reset-view-btn" onclick="resetCanvasView()">⤢ FIT VIEW</button>
+            <div class="multi-asset-management-strip" id="multiAssetFilmstripContainer">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvasElement = document.getElementById('mainGraphicsRenderingContext');
+        const graphicsContext2D = canvasElement.getContext('2d');
+        const textInputInterface = document.getElementById('primaryTextInputInterface');
+        const statusIndicatorLabel = document.getElementById('systemStatusIndicator');
+        const resolutionWidthInput = document.getElementById('inputDimensionWidth');
+        const resolutionHeightInput = document.getElementById('inputDimensionHeight');
+        const stageContainer = document.getElementById('primaryRenderingStageContainer');
+        const filmstripContainer = document.getElementById('multiAssetFilmstripContainer');
+        const modalElement = document.getElementById('helpModal');
+        const zoomDisplay = document.getElementById('zoomLevelDisplay');
+
+        let multiImageRepository = [];
+        let activeAssetIndexReference = -1;
+
+        let layers = {
+            'TL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 3 },
+            'TR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 3 },
+            'BL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 80 },
+            'BR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 80 }
+        };
+        let currentActiveLayerID = 'TL';
+
+        // TRANSFORM VARS
+        let isPanning = false;
+        let startPanX = 0, startPanY = 0;
+        let currentTranslateX = 0, currentTranslateY = 0;
+        let currentScale = 1;
+
+        canvasElement.width = 1920;
+        canvasElement.height = 1080;
+
+        function initInteractions() {
+            // Panning
+            stageContainer.addEventListener('mousedown', startPan);
+            stageContainer.addEventListener('touchstart', startPan, {passive: false});
+            window.addEventListener('mousemove', pan);
+            window.addEventListener('touchmove', pan, {passive: false});
+            window.addEventListener('mouseup', endPan);
+            window.addEventListener('touchend', endPan);
+
+            // Wheel Zoom
+            stageContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if(e.deltaY < 0) adjustZoom('in');
+                else adjustZoom('out');
+            });
+        }
+
+        function startPan(e) {
+            if(e.target === canvasElement || e.target === stageContainer) {
+                isPanning = true;
+                const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+                startPanX = clientX - currentTranslateX;
+                startPanY = clientY - currentTranslateY;
+                stageContainer.style.cursor = 'grabbing';
+            }
+        }
+
+        function pan(e) {
+            if (!isPanning) return;
+            e.preventDefault();
+            const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            
+            currentTranslateX = clientX - startPanX;
+            currentTranslateY = clientY - startPanY;
+            
+            applyTransform();
+        }
+
+        function endPan() {
+            isPanning = false;
+            stageContainer.style.cursor = 'grab';
+        }
+
+        function adjustZoom(mode) {
+            if (mode === 'in') currentScale += 0.1;
+            else currentScale -= 0.1;
+
+            // Limit
+            currentScale = Math.min(Math.max(0.2, currentScale), 5);
+            applyTransform();
+        }
+
+        function applyTransform() {
+            canvasElement.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentScale})`;
+            zoomDisplay.innerText = Math.round(currentScale * 100) + '%';
+        }
+
+        function resetCanvasView() {
+            currentTranslateX = 0;
+            currentTranslateY = 0;
+            currentScale = 1;
+            applyTransform();
+        }
+
+        function toggleHelpModal() {
+            if (modalElement.style.display === 'flex') {
+                modalElement.style.display = 'none';
+            } else {
+                modalElement.style.display = 'flex';
+            }
+        }
+
+        function getFreshLayerTemplate() {
+            return {
+                'TL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 3 },
+                'TR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 3 },
+                'BL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 80 },
+                'BR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 80 }
+            };
+        }
+
+        function switchActiveLayerContext(layerID) {
+            document.querySelectorAll('.layer-btn').forEach(btn => btn.classList.remove('active-layer'));
+            document.getElementById(`btn-${layerID}`).classList.add('active-layer');
+            currentActiveLayerID = layerID;
+            document.getElementById('currentLayerLabel').innerText = layerID === 'TL' ? 'KIRI ATAS' : layerID === 'TR' ? 'KANAN ATAS' : layerID === 'BL' ? 'KIRI BAWAH' : 'KANAN BAWAH';
+            const data = layers[layerID];
+            textInputInterface.value = data.text;
+            document.getElementById('inputFontSizeController').value = data.fontSize;
+            document.getElementById('inputLineHeightController').value = data.lineHeight;
+            document.getElementById('inputPositionXController').value = data.x;
+            document.getElementById('inputPositionYController').value = data.y;
+            updateUIDisplays();
+        }
+
+        function updateActiveLayerData() {
+            const data = layers[currentActiveLayerID];
+            data.text = textInputInterface.value;
+            data.fontSize = parseInt(document.getElementById('inputFontSizeController').value);
+            data.lineHeight = parseInt(document.getElementById('inputLineHeightController').value);
+            data.x = parseFloat(document.getElementById('inputPositionXController').value);
+            data.y = parseFloat(document.getElementById('inputPositionYController').value);
+            if(activeAssetIndexReference !== -1) {
+                multiImageRepository[activeAssetIndexReference].layerData = JSON.parse(JSON.stringify(layers));
+            }
+            updateUIDisplays();
+            initiateCanvasRenderingSequence();
+        }
+
+        function updateUIDisplays() {
+            document.getElementById('displayFontSize').innerText = document.getElementById('inputFontSizeController').value;
+            document.getElementById('displayLineHeight').innerText = document.getElementById('inputLineHeightController').value;
+            document.getElementById('displayPositionX').innerText = document.getElementById('inputPositionXController').value + '%';
+            document.getElementById('displayPositionY').innerText = document.getElementById('inputPositionYController').value + '%';
+        }
+
+        function processIncomingFileStream(fileList) {
+            Array.from(fileList).forEach(fileBlob => {
+                const resourceReader = new FileReader();
+                resourceReader.onload = eventArgs => {
+                    const tempImageObj = new Image();
+                    tempImageObj.onload = () => {
+                        multiImageRepository.push({ 
+                            id: Date.now() + Math.random(), 
+                            img: tempImageObj,
+                            layerData: getFreshLayerTemplate()
+                        });
+                        if (activeAssetIndexReference === -1) setActiveAssetByIndex(0);
+                        else renderFilmstripInterface();
+                    };
+                    tempImageObj.src = eventArgs.target.result;
+                };
+                resourceReader.readAsDataURL(fileBlob);
+            });
+        }
+
+        function setActiveAssetByIndex(index) {
+            if (multiImageRepository.length === 0) {
+                activeAssetIndexReference = -1;
+                renderFilmstripInterface();
+                initiateCanvasRenderingSequence();
+                return;
+            }
+            if (activeAssetIndexReference !== -1 && multiImageRepository[activeAssetIndexReference]) {
+                multiImageRepository[activeAssetIndexReference].layerData = JSON.parse(JSON.stringify(layers));
+            }
+            if (index < 0) index = 0;
+            if (index >= multiImageRepository.length) index = multiImageRepository.length - 1;
+            activeAssetIndexReference = index;
+            const currentAsset = multiImageRepository[index];
+            layers = JSON.parse(JSON.stringify(currentAsset.layerData));
+            resolutionWidthInput.value = currentAsset.img.width;
+            resolutionHeightInput.value = currentAsset.img.height;
+            canvasElement.width = currentAsset.img.width;
+            canvasElement.height = currentAsset.img.height;
+            switchActiveLayerContext(currentActiveLayerID);
+            renderFilmstripInterface();
+            initiateCanvasRenderingSequence();
+            resetCanvasView();
+        }
+
+        function initiateCanvasRenderingSequence() {
+            graphicsContext2D.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            if (activeAssetIndexReference !== -1 && multiImageRepository[activeAssetIndexReference]) {
+                const activeImg = multiImageRepository[activeAssetIndexReference].img;
+                graphicsContext2D.drawImage(activeImg, 0, 0, canvasElement.width, canvasElement.height);
+            } else {
+                graphicsContext2D.fillStyle = '#080808';
+                graphicsContext2D.fillRect(0, 0, canvasElement.width, canvasElement.height);
+                graphicsContext2D.fillStyle = '#222';
+                graphicsContext2D.font = 'bold 30px Oswald';
+                graphicsContext2D.textAlign = 'center';
+                graphicsContext2D.fillText("TIDAK ADA FOTO YANG AKTIF", canvasElement.width / 2, canvasElement.height / 2);
+            }
+            const selectedFontFamily = document.getElementById('fontFamilySelector').value;
+            const layerKeys = ['TL', 'TR', 'BL', 'BR'];
+            layerKeys.forEach(key => {
+                const layer = layers[key];
+                if (!layer.text.trim()) return;
+                const startX = (canvasElement.width * layer.x) / 100;
+                const startY = (canvasElement.height * layer.y) / 100;
+                graphicsContext2D.font = `bold ${layer.fontSize}px "${selectedFontFamily}", sans-serif`;
+                graphicsContext2D.textBaseline = 'top';
+                graphicsContext2D.textAlign = 'left';
+                const lines = layer.text.split('\n');
+                lines.forEach((textLine, lineIndex) => {
+                    let currentY = startY + (lineIndex * layer.lineHeight);
+                    let currentX = startX;
+                    let activeColor = '#FFFFFF';
+                    const lowerCaseLine = textLine.toLowerCase();
+                    if (textLine.trim().startsWith('*')) activeColor = '#C2A2DA';
+                    if (lowerCaseLine.includes('whispers:')) activeColor = '#FFFF00';
+                    if (textLine.trim().startsWith('((') || textLine.includes(' (( ')) activeColor = '#A9A9A9';
+                    const regexSplitter = /({[A-Fa-f0-9]{6}})/g;
+                    const textSegments = textLine.split(regexSplitter);
+                    textSegments.forEach(segment => {
+                        if (segment.match(/^{[A-Fa-f0-9]{6}}$/)) {
+                            activeColor = '#' + segment.replace('{','').replace('}','');
+                        } else if (segment !== '') {
+                            graphicsContext2D.lineWidth = 3; 
+                            graphicsContext2D.strokeStyle = 'black'; 
+                            graphicsContext2D.strokeText(segment, currentX, currentY);
+                            graphicsContext2D.lineWidth = 1; 
+                            graphicsContext2D.strokeText(segment, currentX + 1, currentY + 1);
+                            graphicsContext2D.fillStyle = activeColor; 
+                            graphicsContext2D.fillText(segment, currentX, currentY);
+                            currentX += graphicsContext2D.measureText(segment).width;
+                        }
+                    });
+                });
+            });
+        }
+
+        function initializeGlobalDragAndDropEventListeners() {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                stageContainer.addEventListener(eventName, preventDefaultBrowserBehavior, false);
+                document.body.addEventListener(eventName, preventDefaultBrowserBehavior, false);
+            });
+            stageContainer.addEventListener('dragenter', () => stageContainer.classList.add('drag-active-state'), false);
+            stageContainer.addEventListener('dragover', () => stageContainer.classList.add('drag-active-state'), false);
+            stageContainer.addEventListener('dragleave', () => stageContainer.classList.remove('drag-active-state'), false);
+            stageContainer.addEventListener('drop', handleFileDropEventOnStage, false);
+        }
+
+        function preventDefaultBrowserBehavior(e) { e.preventDefault(); e.stopPropagation(); }
+
+        function handleFileDropEventOnStage(e) {
+            stageContainer.classList.remove('drag-active-state');
+            const transferredFiles = e.dataTransfer.files;
+            if(transferredFiles && transferredFiles.length > 0) processIncomingFileStream(transferredFiles);
+        }
+
+        function handleIncomingMediaStreamFromUserInterface(inputElement) {
+            if (!inputElement.files || inputElement.files.length === 0) return;
+            processIncomingFileStream(inputElement.files);
+        }
+
+        function renderFilmstripInterface() {
+            filmstripContainer.innerHTML = '';
+            multiImageRepository.forEach((asset, index) => {
+                const thumbDiv = document.createElement('div');
+                thumbDiv.className = `asset-thumbnail-container ${index === activeAssetIndexReference ? 'active-asset-state' : ''}`;
+                thumbDiv.style.backgroundImage = `url(${asset.img.src})`;
+                thumbDiv.onclick = () => setActiveAssetByIndex(index);
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'asset-delete-trigger';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = (e) => { e.stopPropagation(); executeSingleAssetDeletionSequence(index); };
+                thumbDiv.appendChild(deleteBtn);
+                filmstripContainer.appendChild(thumbDiv);
+            });
+        }
+
+        function executeSingleAssetDeletionSequence(index) {
+            multiImageRepository.splice(index, 1);
+            if (multiImageRepository.length === 0) activeAssetIndexReference = -1;
+            else if (index <= activeAssetIndexReference) activeAssetIndexReference = Math.max(0, activeAssetIndexReference - 1);
+            setActiveAssetByIndex(activeAssetIndexReference);
+        }
+
+        function executeGlobalAssetPurgeSequence() {
+            if(confirm('CONFIRM: REMOVE ALL IMAGES?')) {
+                multiImageRepository = [];
+                activeAssetIndexReference = -1;
+                renderFilmstripInterface();
+                initiateCanvasRenderingSequence();
+            }
+        }
+
+        function executeManualResolutionAdjustmentSequence() {
+            let parsedWidth = parseInt(resolutionWidthInput.value) || 1920;
+            let parsedHeight = parseInt(resolutionHeightInput.value) || 1080;
+            canvasElement.width = parsedWidth;
+            canvasElement.height = parsedHeight;
+            initiateCanvasRenderingSequence();
+        }
+
+        function calculateAspectRatioDimensionsAndApplyToCanvas(aspectRatioDescriptor) {
+            let currentBaseWidth = parseInt(resolutionWidthInput.value) || 1920;
+            let calculatedHeight;
+            switch(aspectRatioDescriptor) {
+                case '16:9': calculatedHeight = Math.round(currentBaseWidth * (9/16)); break;
+                case '4:3':  calculatedHeight = Math.round(currentBaseWidth * (3/4)); break;
+                case '1:1':  calculatedHeight = currentBaseWidth; break;
+                case '3:4':  calculatedHeight = Math.round(currentBaseWidth * (4/3)); break;
+                case '9:16': calculatedHeight = Math.round(currentBaseWidth * (16/9)); break;
+                default: return;
+            }
+            resolutionHeightInput.value = calculatedHeight;
+            executeManualResolutionAdjustmentSequence();
+        }
+
+        function injectTemplateStringIntoEditor(templateStr) {
+            const selectionStartIdx = textInputInterface.selectionStart;
+            const selectionEndIdx = textInputInterface.selectionEnd;
+            textInputInterface.value = textInputInterface.value.substring(0, selectionStartIdx) + templateStr + textInputInterface.value.substring(selectionEndIdx);
+            textInputInterface.focus();
+            textInputInterface.selectionEnd = selectionStartIdx + templateStr.length;
+            updateActiveLayerData();
+        }
+
+        function triggerSystemColorPickerInterface() { document.getElementById('nativeSystemColorPicker').click(); }
+
+        function embedChromaticHexCodeToSelection(colorValue) {
+            let hexCode = colorValue.startsWith('#') ? colorValue.substring(1) : colorValue.replace(/[{}]/g,'');
+            const formattedTag = `{${hexCode}}`;
+            const selectionStartIdx = textInputInterface.selectionStart;
+            const selectionEndIdx = textInputInterface.selectionEnd;
+            if (selectionStartIdx === selectionEndIdx) injectTemplateStringIntoEditor(formattedTag);
+            else {
+                textInputInterface.value = textInputInterface.value.substring(0, selectionStartIdx) + formattedTag + textInputInterface.value.substring(selectionStartIdx, selectionEndIdx) + textInputInterface.value.substring(selectionEndIdx);
+                updateActiveLayerData();
+            }
+        }
+
+        function executeTimestampPurgeSequence() {
+            textInputInterface.value = textInputInterface.value.replace(/\[\d{2}:\d{2}:\d{2}\]\s*/g, '');
+            updateActiveLayerData();
+        }
+
+        function executeGlobalTextErasureSequence() {
+            if(confirm('Clear text for THIS ZONE only?')) {
+                textInputInterface.value = '';
+                updateActiveLayerData();
+            }
+        }
+
+        function generateAndDownloadFinalArtifact() {
+            if (activeAssetIndexReference === -1) return alert('ERROR: NO ACTIVE IMAGE');
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.download = 'ssrp-images-export.png';
+            downloadAnchor.href = canvasElement.toDataURL('image/png');
+            downloadAnchor.click();
+        }
+
+        async function transmitImageDataToImgurAPI() {
+            if (activeAssetIndexReference === -1) return alert('ERROR: NO ACTIVE IMAGE');
+            statusIndicatorLabel.innerText = "Encoding binary data stream...";
+            const base64EncodedData = canvasElement.toDataURL('image/png').split(',')[1];
+            statusIndicatorLabel.innerText = "Transmitting to Imgur endpoint...";
+            try {
+                const apiClientId = '2654c6086395349'; 
+                const formPayload = new FormData();
+                formPayload.append('image', base64EncodedData);
+                formPayload.append('type', 'base64');
+                const apiResponse = await fetch('imgur-apiv3.p.rapidapi.com', {
+                    method: 'POST', headers: { 'Authorization': 'Client-ID ' + apiClientId }, body: formPayload
+                });
+                const responseJson = await apiResponse.json();
+                if (responseJson.success) {
+                    navigator.clipboard.writeText(responseJson.data.link);
+                    statusIndicatorLabel.innerText = "TRANSMISSION SUCCESSFUL. Link cached.";
+                    statusIndicatorLabel.style.color = "#10b981";
+                    alert("LINK ACQUIRED:\n" + responseJson.data.link);
+                } else { throw new Error(responseJson.data.error || "Transmission Failed"); }
+            } catch (exception) {
+                statusIndicatorLabel.innerText = "TRANSMISSION FAILURE. Manual save advised.";
+                statusIndicatorLabel.style.color = "#dc2626";
+                alert("API Error: Transmission terminated.");
+            }
+        }
+
+        window.onload = () => { 
+            initializeGlobalDragAndDropEventListeners();
+            initInteractions(); 
+            updateActiveLayerData(); 
+        };
+    </script>
+</body>
+</html>
