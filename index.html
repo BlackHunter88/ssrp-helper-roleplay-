@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SSRP HELPER - By PuddingMilki</title>
+    <title>SSRP HELPER - By PuddingMilki v1.4.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,23 +37,26 @@
         }
 
         .brand-identity-header {
-            font-family: 'Oswald', sans-serif; font-size: 28px; text-transform: uppercase;
-            letter-spacing: 2px; border-bottom: 2px solid var(--primary-accent-color);
-            padding-bottom: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            font-family: 'Oswald', sans-serif; font-size: 24px; text-transform: uppercase;
+            letter-spacing: 1px; border-bottom: 2px solid var(--primary-accent-color);
+            padding-bottom: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px;
         }
+        .brand-identity-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .brand-identity-header span { color: var(--primary-accent-color); }
         
-        .help-trigger-btn {
-            background: none; border: 1px solid #333; color: #666; font-family: 'Inter'; font-size: 10px; 
-            padding: 5px 10px; cursor: pointer; border-radius: 3px; transition: 0.2s;
+        .header-btn-group { display: flex; gap: 5px; }
+        .header-btn {
+            background: none; border: 1px solid #333; color: #888; font-family: 'Inter'; font-size: 9px; 
+            padding: 4px 8px; cursor: pointer; border-radius: 3px; transition: 0.2s; font-weight: 600; text-transform: uppercase;
         }
-        .help-trigger-btn:hover { border-color: var(--primary-accent-color); color: var(--typography-main); }
+        .header-btn:hover { border-color: var(--primary-accent-color); color: var(--typography-main); }
 
         .ui-section-designator-label {
             font-size: 10px; font-weight: 800; color: var(--typography-subtle);
             text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;
-            margin-top: 10px; display: block;
+            margin-top: 15px; display: block; border-top: 1px solid #222; padding-top: 10px;
         }
+        .ui-section-designator-label:first-of-type { border-top: none; padding-top: 0; margin-top: 10px; }
 
         .aspect-ratio-grid-selector { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
         .ratio-selection-button {
@@ -64,12 +67,12 @@
         .ratio-selection-button:hover { background: #222; color: white; border-color: #555; }
 
         .file-upload-interface-area {
-            position: relative; width: 100%; height: 50px; background: var(--input-field-background);
+            position: relative; width: 100%; height: 40px; background: var(--input-field-background);
             border: 1px dashed var(--border-line-color); border-radius: 4px; display: flex;
-            align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin-top: 8px;
+            align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; margin-top: 5px;
         }
         .file-upload-interface-area:hover { border-color: var(--primary-accent-color); color: var(--primary-accent-color); }
-        .file-upload-interface-area span { font-size: 11px; font-weight: 600; }
+        .file-upload-interface-area span { font-size: 10px; font-weight: 600; }
         .hidden-file-input-trigger { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
         .resolution-input-grouping { display: flex; gap: 8px; align-items: center; }
@@ -102,29 +105,35 @@
         .chromatic-swatch { width: 16px; height: 16px; border-radius: 2px; cursor: pointer; border: 1px solid #444; }
         
         .text-editor-input-area {
-            width: 100%; height: 150px; background: var(--input-field-background); border: 1px solid var(--border-line-color);
+            width: 100%; height: 120px; background: var(--input-field-background); border: 1px solid var(--border-line-color);
             color: #e5e5e5; font-family: 'JetBrains Mono', monospace; font-size: 13px;
             padding: 12px; border-radius: 0 0 4px 4px; resize: vertical; white-space: pre; line-height: 1.4;
         }
         .text-editor-input-area:focus { border-color: #444; }
 
-        .parameter-adjustment-row { display: flex; align-items: center; gap: 10px; background: var(--input-field-background); padding: 8px 12px; border-radius: 4px; }
+        .parameter-adjustment-row { display: flex; align-items: center; gap: 10px; background: var(--input-field-background); padding: 6px 10px; border-radius: 4px; margin-bottom: 4px;}
         input[type="range"] { flex: 1; -webkit-appearance: none; background: #333; height: 4px; border-radius: 2px; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--primary-accent-color); border-radius: 50%; cursor: pointer; }
-        .parameter-value-display { font-family: monospace; font-size: 11px; width: 30px; text-align: right; color: #888; }
+        .parameter-value-display { font-family: monospace; font-size: 10px; width: 30px; text-align: right; color: #888; }
 
         .layer-selector-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 5px;
         }
         .layer-btn {
-            background: #151515; border: 1px solid #333; color: #666; padding: 12px;
-            font-size: 11px; font-weight: 800; cursor: pointer; border-radius: 4px;
+            background: #151515; border: 1px solid #333; color: #666; padding: 10px;
+            font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 4px;
             transition: 0.2s; text-align: center;
         }
         .layer-btn:hover { background: #222; color: #fff; }
         .layer-btn.active-layer {
             background: rgba(220, 38, 38, 0.1); border-color: var(--primary-accent-color); color: var(--primary-accent-color);
         }
+
+        .filename-input {
+            width: 100%; background: #111; border: 1px solid #333; color: #fff; 
+            padding: 10px; margin-bottom: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;
+        }
+        .filename-input::placeholder { color: #444; }
 
         .global-action-button-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
         .global-action-button {
@@ -151,40 +160,67 @@
         .modal-body { font-size: 13px; line-height: 1.6; color: #ccc; }
         .modal-body h4 { color: var(--primary-accent-color); margin-bottom: 5px; margin-top: 15px; }
         .modal-body ul { padding-left: 20px; margin: 0; }
+        .modal-body li { margin-bottom: 5px; }
 
         .visual-rendering-stage-wrapper {
             flex: 1; display: flex; flex-direction: column; background: #000; overflow: hidden;
+            position: relative; 
         }
 
         .visual-rendering-stage-container {
             flex: 1; 
             background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px);
             background-size: 40px 40px; display: flex; align-items: center; justify-content: center; padding: 40px;
-            position: relative; transition: all 0.3s ease;
-            overflow: hidden;
+            position: relative; transition: background-color 0.3s ease;
+            overflow: hidden; 
+            cursor: grab;
         }
         
+        .visual-rendering-stage-container:active { cursor: grabbing; }
+
         .visual-rendering-stage-container.drag-active-state {
             background-color: rgba(220, 38, 38, 0.1);
             box-shadow: inset 0 0 100px rgba(220, 38, 38, 0.5);
             border: 2px dashed var(--primary-accent-color);
         }
         .visual-rendering-stage-container.drag-active-state::after {
-            content: 'DROP MULTIPLE IMAGES HERE';
+            content: 'LETAKAN GAMBAR DISINI';
             position: absolute; color: white; font-family: 'Oswald'; font-size: 40px; font-weight: 700; pointer-events: none;
         }
 
-        canvas { max-width: 100%; max-height: 100%; box-shadow: 0 0 100px rgba(0,0,0,0.8); border: 1px solid #222; }
+        canvas { 
+            max-width: none; 
+            max-height: none; 
+            box-shadow: 0 0 100px rgba(0,0,0,0.8); 
+            border: 1px solid #222; 
+            transform-origin: center center;
+            transition: transform 0.1s ease-out; 
+        }
+
+        .zoom-controls-overlay {
+            position: absolute; top: 20px; right: 20px;
+            display: flex; gap: 5px; background: rgba(0,0,0,0.5); padding: 5px;
+            border-radius: 6px; border: 1px solid #333; backdrop-filter: blur(4px);
+            z-index: 100;
+        }
+        .zoom-btn {
+            background: #222; color: #fff; border: 1px solid #444; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            cursor: pointer; border-radius: 4px; font-size: 14px;
+        }
+        .zoom-btn:hover { background: var(--primary-accent-color); border-color: var(--primary-accent-color); }
+        .zoom-label { font-size: 10px; color: #ccc; display: flex; align-items: center; margin: 0 8px; font-family: monospace; }
+
 
         .multi-asset-management-strip {
-            height: 100px; background: #080808; border-top: 1px solid var(--border-line-color);
-            display: flex; gap: 10px; padding: 10px; overflow-x: auto;
+            height: 80px; background: #080808; border-top: 1px solid var(--border-line-color);
+            display: flex; gap: 10px; padding: 10px; overflow-x: auto; z-index: 60;
         }
         .multi-asset-management-strip::-webkit-scrollbar { height: 6px; }
         .multi-asset-management-strip::-webkit-scrollbar-thumb { background: #333; }
 
         .asset-thumbnail-container {
-            min-width: 120px; max-width: 120px; height: 100%; border: 1px solid #333; border-radius: 4px;
+            min-width: 100px; max-width: 100px; height: 100%; border: 1px solid #333; border-radius: 4px;
             overflow: hidden; position: relative; cursor: pointer; transition: 0.2s;
             background-size: cover; background-position: center;
         }
@@ -224,45 +260,83 @@
 
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content-box">
-            <button class="modal-close-btn" onclick="toggleHelpModal()">×</button>
-            <div class="modal-title">HELP & SUGGESTIONS</div>
+            <button class="modal-close-btn" onclick="toggleModal('helpModal')">×</button>
+            <div class="modal-title">BANTUAN & FITUR</div>
             <div class="modal-body">
-                <h4>1. MULTI-ZONE SYSTEM</h4>
-                <ul>
-                    <li>Gunakan tombol <b>TOP LEFT</b>, <b>TOP RIGHT</b>, dsb untuk memilih zona.</li>
-                    <li>Setiap zona berdiri sendiri. Teks di <i>Top Left</i> tidak akan menimpa <i>Bottom Right</i>.</li>
-                    <li>Kamu bisa mengisi 4 zona sekaligus dalam 1 gambar.</li>
-                </ul>
+                <h4>1. SISTEM MULTI-ZONA (BIAR TEKS GA SALING TIMPA)</h4>
+<ul>
+    <li>Pilih posisi teks lewat tombol KIRI ATAS, KANAN ATAS, TENGAH, dan lain-lain.</li>
+    <li>Setiap posisi itu berdiri sendiri, jadi teks kiri gak bakal nimpa teks kanan.</li>
+    <li>Enak buat misahin dialog, action, atau keterangan biar gak berantakan.</li>
+</ul>
 
-                <h4>2. PER-IMAGE MEMORY (BARU!)</h4>
-                <ul>
-                    <li>Setiap gambar menyimpan teksnya masing-masing.</li>
-                    <li>Jika kamu ganti ke Gambar 2, editor akan bersih (atau sesuai isi Gambar 2).</li>
-                    <li>Jika balik ke Gambar 1, editan kamu <b>tidak hilang</b>.</li>
-                </ul>
+<h4>2. TIPS BIAR TEKS ENAK DILIAT</h4>
+<ul>
+    <li>Pake tombol [says] buat dialog, dan [/me] buat action biar keliatan roleplay.</li>
+    <li>Naikin STROKE kalau background rame, biar teks tetep kebaca.</li>
+    <li>Klik FIT di pojok kanan preview kalau zoom udah kemana-mana.</li>
+</ul>
 
-                <h4>3. TIPS & TRICK</h4>
-                <ul>
-                    <li>Gunakan <b>[Says]</b> dan <b>[Shouts]</b> untuk format otomatis.</li>
-                    <li>Teks warna warni? Gunakan palet warna di atas editor.</li>
-                    <li>Gunakan tombol <b>IMGUR UPLOAD</b> untuk mendapatkan link langsung.</li>
-                </ul>
+<h4>3. EDIT CEPET, GA PERLU RIBET</h4>
+<ul>
+    <li>Semua perubahan langsung keliatan, gak perlu apply berkali-kali.</li>
+    <li>Tinggal ganti zona, fokus pindah ke teks itu.</li>
+    <li>Cocok buat yang maunya gerak cepet, bukan klik aneh-aneh.</li>
+</ul>
 
+
+                <div style="text-align:center; color:#666; font-size:11px; margin-top:20px;">SSRP HELPER v1.4.0</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="readmeModal" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="toggleModal('readmeModal')">×</button>
+            <div class="modal-title">README</div>
+            <div class="modal-body">
+                <p>Selamat datang di <b>SSRP HELPER</b>. web ini dibuat khusus untuk mempermudah pemain Roleplay (SAMP/GTA V) dalam mengedit Screenshot Roleplay (SSRP) tanpa perlu aplikasi seperti Photoshop.</p>
                 
-                <h4>4. SARAN GW</h4>
-                <ul>
-                    <li>Untuk <b>SIZE</b> bisa dibuat di <b>27</b> dan <b>SPACE</b> bisa di <b>27</b> juga</li>
-                    <li>dah itu aja sih, semua boleh  di ubah sesuka kalin! <b>ENJOY GUYS!!</b></li>
-                    
-                </ul>
+                <h4>CARA PAKAI:</h4>
+                <ol>
+                    <li><b>Upload Foto:</b> Drag & Drop foto kamu ke area tengah, atau klik tombol upload.</li>
+                    <li><b>Atur Resolusi:</b> Pilih resolusi standar (16:9, 4:3, 21:9) atau masukkan manual.</li>
+                    <li><b>Zoom dan Ubah Ukuran:</b> Ganti ukuran foto(bisa pakai CTRL+SCROLL WHEEL mouse)</li>
+                    <li><b>Pilih Zona:</b> Pilih posisi chatlog (misal: Kiri Atas,kanan atas dll).</li>
+                    <li><b>Isi Chatlog:</b> Paste chatlog dari game ke kolom teks.</li>
+                    <li><b>Edit Warna:</b> Gunakan kode warna atau klik kotak warna. (Contoh: {FF0000} untuk Merah).</li>
+                    <li><b>Download:</b> Klik tombol DOWNLOAD untuk menyimpan hasil.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
 
-                <h4>5. BUG INFORMATION</h4>
+    <div id="changelogModal" class="modal-overlay">
+        <div class="modal-content-box">
+            <button class="modal-close-btn" onclick="toggleModal('changelogModal')">×</button>
+            <div class="modal-title">CHANGELOG</div>
+            <div class="modal-body">
+                <h4>v1.4 (LATEST)</h4>
                 <ul>
-                    <li>Untuk fitur <b>IMGUR UPLOAD</b> Lagi bug ya Guyss tunggu aja kalo mau dipake!</li>
+                    <li><b>Info Tambahan:</b> Add tombol Readme & Changelog.</li>
+                    <li> Remodel Tombol tombol dll</li>
                 </ul>
+                <h4>v1.3</h4>
+                <ul>
+                    <li>Perbaikan tombol FIT (Auto-zoom).</li>
+                    <li>Add kontrol Zoom In/Out dan Pan (Geser) di preview.</li>
 
-                <br>
-                <div style="text-align:center; color:#666; font-size:11px;">SSRP HELPER v1.0.0</div>
+                </ul>
+                <h4>v1.2</h4>
+                <ul>
+                    <li>Add Fitur Import Objek / Stiker / Chatlog (PNG).</li>
+                    <li>Add Fitur hapus TIMESTAMP [00:00:00].</li>
+                </ul>
+                <h4>v1.1</h4>
+                <ul>
+                    <li>Add fitur Stroke (Outline) pada teks.</li>
+                    <li>Add Fitur Zoom In/Out dan Pan (Geser).</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -270,38 +344,40 @@
     <div class="application-main-layout-wrapper">
         <div class="sidebar-control-panel-container">
             <div class="brand-identity-header">
-                <div>[DESKTOP] SSRP <span>HELPER</span></div>
-                <button class="help-trigger-btn" onclick="toggleHelpModal()">[?] HELPS</button>
+                <div class="brand-identity-row">
+                    <div>[DESKTOP] SSRP <span>HELPER</span></div>
+                </div>
+                <div class="header-btn-group">
+                    <button class="header-btn" onclick="toggleModal('helpModal')">[?] BANTUAN</button>
+                    <button class="header-btn" onclick="toggleModal('readmeModal')">[i] README</button>
+                    <button class="header-btn" onclick="toggleModal('changelogModal')">[!] LOG</button>
+                     </div>
             </div>
 
             <div>
-                <span class="ui-section-designator-label">Ukuran dan resolusi</span>
-                <p style="font-size:10px; color:#666; margin-top:0;">Pilih atau atur ukuran dan resolusi sesuka mu</p>
+                <span class="ui-section-designator-label">1. Latar Belakang & Resolusi</span>
+                <div class="file-upload-interface-area" style="margin-top:5px;">
+                    <span>CARI / TARUH FOTO </span>
+                    <input type="file" class="hidden-file-input-trigger" accept="image/*" multiple onchange="handleIncomingMediaStreamFromUserInterface(this)">
+                </div>
                 
-                <div class="aspect-ratio-grid-selector">
+                <div class="aspect-ratio-grid-selector" style="margin-top:5px;">
                     <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('16:9')">16:9 (HD)</button>
                     <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('4:3')">4:3 (SD)</button>
-                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('1:1')">1:1 (SQ)</button>
-                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('3:4')">3:4 (Port)</button>
-                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('9:16')">9:16 (Story)</button>
+                    <button class="ratio-selection-button" onclick="calculateAspectRatioDimensionsAndApplyToCanvas('21:9')">21:9 (UW)</button>
+                    <button class="ratio-selection-button" onclick="apply4KResolution()">4K (UHD)</button>
                 </div>
 
                 <div class="resolution-input-grouping">
-                    <input type="number" id="inputDimensionWidth" class="dimension-input-field" value="1920" placeholder="Width" onchange="executeManualResolutionAdjustmentSequence()">
+                    <input type="number" id="inputDimensionWidth" class="dimension-input-field" value="1920" placeholder="Lebar" onchange="executeManualResolutionAdjustmentSequence()">
                     <span style="color:#444">x</span>
-                    <input type="number" id="inputDimensionHeight" class="dimension-input-field" value="1080" placeholder="Height" onchange="executeManualResolutionAdjustmentSequence()">
+                    <input type="number" id="inputDimensionHeight" class="dimension-input-field" value="1080" placeholder="Tinggi" onchange="executeManualResolutionAdjustmentSequence()">
                 </div>
-                
-                <div class="file-upload-interface-area">
-                    <span>CARI ATAU TARUH FOTO DISINI</span>
-                    <input type="file" class="hidden-file-input-trigger" accept="image/*" multiple onchange="handleIncomingMediaStreamFromUserInterface(this)">
-                </div>
-                <button class="toolbar-action-button danger-mode" style="width:100%; margin-top:5px; padding:10px;" onclick="executeGlobalAssetPurgeSequence()">RESET / HAPUS SEMUA FOTO</button>
+                 <button class="toolbar-action-button danger-mode" style="width:100%; margin-top:5px; padding:8px;" onclick="executeGlobalAssetPurgeSequence()">HAPUS SEMUA FOTO</button>
             </div>
 
             <div>
-                <span class="ui-section-designator-label">ZONA CHATLOG</span>
-                <p style="font-size:10px; color:#666; margin-top:0;">Pilihlah tempat untuk menaruh chatlog mu</p>
+                <span class="ui-section-designator-label">2. Zona Chatlog</span>
                 <div class="layer-selector-grid">
                     <div id="btn-TL" class="layer-btn active-layer" onclick="switchActiveLayerContext('TL')">KIRI ATAS</div>
                     <div id="btn-TR" class="layer-btn" onclick="switchActiveLayerContext('TR')">KANAN ATAS</div>
@@ -311,70 +387,97 @@
             </div>
 
             <div>
-                <span class="ui-section-designator-label">POSISI CHATLOG (EDITING: <span id="currentLayerLabel" style="color:#dc2626">KIRI ATAS</span>)</span>
-                <div class="chatlog-toolbar-wrapper">
+                 <span class="ui-section-designator-label" style="margin-top:5px; border:none; padding:0;">ZONA YANG DI SELECT : <span id="currentLayerLabel" style="color:#dc2626">KIRI ATAS</span></span>
+                <div class="chatlog-toolbar-wrapper" style="margin-top:5px;">
                     <div class="toolbar-primary-actions">
                         <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('says: ')">says</button>
                         <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('shouts: ')">shouts</button>
                         <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('* Player_Name')">/Me</button>
-                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('Player_Name ')">Name</button>
+                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('Player_Name ')">Nama</button>
                         
                         <div class="chromatic-selector-wrapper">
-                            <div class="chromatic-swatch" style="background:#ef4444" onclick="embedChromaticHexCodeToSelection('{FF0000}')" title="Red"></div>
-                            <div class="chromatic-swatch" style="background:#3b82f6" onclick="embedChromaticHexCodeToSelection('{3498db}')" title="Blue"></div>
-                            <div class="chromatic-swatch" style="background:#10b981" onclick="embedChromaticHexCodeToSelection('{33AA33}')" title="Green"></div>
-                            <div class="chromatic-swatch" style="background:#eab308" onclick="embedChromaticHexCodeToSelection('{FFFF00}')" title="Yellow"></div>
-                            <div class="chromatic-swatch" style="background:#c084fc" onclick="embedChromaticHexCodeToSelection('{C2A2DA}')" title="Purple"></div>
-                            <div class="chromatic-swatch" style="background:#ffffff; border:1px solid #fff" onclick="triggerSystemColorPickerInterface()" title="Custom"></div>
+                            <div class="chromatic-swatch" style="background:#C2A2DA" onclick="embedChromaticHexCodeToSelection('{C2A2DA}')" title="/Me (Ungu)"></div>
+                            <div class="chromatic-swatch" style="background:#ef4444" onclick="embedChromaticHexCodeToSelection('{FF0000}')" title="Merah"></div>
+                            <div class="chromatic-swatch" style="background:#3b82f6" onclick="embedChromaticHexCodeToSelection('{3498db}')" title="Biru"></div>
+                            <div class="chromatic-swatch" style="background:#10b981" onclick="embedChromaticHexCodeToSelection('{33AA33}')" title="Hijau"></div>
+                            <div class="chromatic-swatch" style="background:#eab308" onclick="embedChromaticHexCodeToSelection('{FFFF00}')" title="Kuning"></div>
+                            <div class="chromatic-swatch" style="background:#ffffff; border:1px solid #fff" onclick="triggerSystemColorPickerInterface()" title="Kustom"></div>
                             <input type="color" id="nativeSystemColorPicker" style="visibility:hidden; width:0; height:0" onchange="embedChromaticHexCodeToSelection(this.value)">
                         </div>
                     </div>
                 </div>
 
-                <textarea id="primaryTextInputInterface" class="text-editor-input-area" placeholder="Masukan Chatlog anda disini! " oninput="updateActiveLayerData()"></textarea>
+                <textarea id="primaryTextInputInterface" class="text-editor-input-area" placeholder="Tempel (Paste) chatlog kamu di sini..." oninput="updateActiveLayerData()"></textarea>
                 
                 <div style="display:flex; justify-content:space-between; margin-top:5px;">
-                    <button class="toolbar-action-button" onclick="executeTimestampPurgeSequence()">HAPUS [00:00:00]</button>
-                    <button class="toolbar-action-button" onclick="executeGlobalTextErasureSequence()">HAPUS ZONA INI</button>
+                    <button class="toolbar-action-button" onclick="executeTimestampPurgeSequence()"> Remove TIMESTAMP [00:00:00]</button>
+                    <button class="toolbar-action-button" onclick="executeGlobalTextErasureSequence()">REMOVE CHATLOG(SELECTED ZONE)</button>
                 </div>
             </div>
 
             <div>
-                <span class="ui-section-designator-label">TEMPAT UNTUK CUSTOM</span>
+                 <span class="ui-section-designator-label">3. Tambah Objek / Stiker / Chatlog(PNG)</span>
+                <div class="file-upload-interface-area" style="margin-bottom: 5px;">
+                    <span id="objectUploadLabel">UNGGAH OBJEK (OPSIONAL)</span>
+                    <input type="file" class="hidden-file-input-trigger" accept="image/png, image/gif, image/jpeg" onchange="handleObjectUpload(this)">
+                </div>
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">UKURAN</span>
+                    <input type="range" id="inputObjSizeController" min="5" max="200" value="50" oninput="updateActiveObjectData()">
+                    <span class="parameter-value-display" id="displayObjSize">50%</span>
+                </div>
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">POS X</span>
+                    <input type="range" id="inputObjXController" min="0" max="100" value="50" step="0.1" oninput="updateActiveObjectData()">
+                    <span class="parameter-value-display" id="displayObjX">50%</span>
+                </div>
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">POS Y</span>
+                    <input type="range" id="inputObjYController" min="0" max="100" value="50" step="0.1" oninput="updateActiveObjectData()">
+                    <span class="parameter-value-display" id="displayObjY">50%</span>
+                </div>
+                 <button class="toolbar-action-button" style="width:100%; margin-top:2px; padding:5px;" onclick="removeActiveObject()">HAPUS OBJEK</button>
+            </div>
+
+
+            <div>
+                <span class="ui-section-designator-label">4. Settings Teks</span>
                 
                 <div class="parameter-adjustment-row" style="margin-bottom: 5px;">
                     <select id="fontFamilySelector" class="typography-font-selector-dropdown" onchange="initiateCanvasRenderingSequence()">
-                        <option value="Arial">Arial (Standard)</option>
                         <option value="Inter">Inter (Modern UI)</option>
-                        <option value="JetBrains Mono">JetBrains Mono (Code)</option>
-                        <option value="Courier New">Courier New (Classic)</option>
+                        <option value="Arial">Arial (Standar)</option>
+                        <option value="JetBrains Mono">JetBrains Mono (Kode)</option>
+                        <option value="Courier New">Courier New (Klasik)</option>
                         <option value="Times New Roman">Times New Roman</option>
                         <option value="Impact">Impact</option>
                         <option value="Comic Sans MS">Comic Sans (Fun)</option>
-                        <option value="Georgia">Georgia (Classic)</option>
+                        <option value="Georgia">Georgia (Klasik)</option>
                         <option value="Poppins">Poppins (Modern)</option>
                     </select>
                 </div>
 
                 <div class="parameter-adjustment-row">
-                    <span style="font-size:10px; color:#666">SIZE</span>
-                    <input type="range" id="inputFontSizeController" min="10" max="100" value="18" oninput="updateActiveLayerData()">
-                    <span class="parameter-value-display" id="displayFontSize">18</span>
+                    <span style="font-size:10px; color:#666">UKURAN</span>
+                    <input type="range" id="inputFontSizeController" min="10" max="100" value="27" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayFontSize">27</span>
                 </div>
-                <div style="height:5px"></div>
                 <div class="parameter-adjustment-row">
-                    <span style="font-size:10px; color:#666">SPACE</span>
-                    <input type="range" id="inputLineHeightController" min="10" max="120" value="22" oninput="updateActiveLayerData()">
-                    <span class="parameter-value-display" id="displayLineHeight">22</span>
+                    <span style="font-size:10px; color:#666">STROKE</span>
+                    <input type="range" id="inputStrokeController" min="0" max="10" value="3" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayStrokeSize">3</span>
                 </div>
-                <div style="height:5px"></div>
+                <div class="parameter-adjustment-row">
+                    <span style="font-size:10px; color:#666">SPASI</span>
+                    <input type="range" id="inputLineHeightController" min="10" max="120" value="27" oninput="updateActiveLayerData()">
+                    <span class="parameter-value-display" id="displayLineHeight">27</span>
+                </div>
                 
-                <div class="parameter-adjustment-row">
+                <div class="parameter-adjustment-row" style="margin-top:5px;">
                     <span style="font-size:10px; color:#666">POS X</span>
                     <input type="range" id="inputPositionXController" min="0" max="100" value="2" step="0.1" oninput="updateActiveLayerData()">
                     <span class="parameter-value-display" id="displayPositionX">2%</span>
                 </div>
-                <div style="height:5px"></div>
                 <div class="parameter-adjustment-row">
                     <span style="font-size:10px; color:#666">POS Y</span>
                     <input type="range" id="inputPositionYController" min="0" max="100" value="5" step="0.1" oninput="updateActiveLayerData()">
@@ -383,23 +486,33 @@
             </div>
 
             <div class="global-action-button-grid">
-                <button class="global-action-button cloud-upload-action" onclick="transmitImageDataToImgurAPI()">IMGUR UPLOAD</button>
-                <button class="global-action-button download-action" onclick="generateAndDownloadFinalArtifact()">DOWNLOAD</button>
+                <div style="grid-column: 1 / -1;">
+                    <input type="text" id="exportFilenameInput" class="filename-input" placeholder="Nama File (Opsional) cth: 'Robbery-Part1'">
+                </div>
+                <button class="global-action-button cloud-upload-action" onclick="transmitImageDataToImgurAPI()">UPLOAD KE IMGUR[LAGI BUG]</button>
+                <button class="global-action-button download-action" onclick="generateAndDownloadFinalArtifact()">DOWNLOAD FOTO</button>
             </div>
             <div id="systemStatusIndicator">IMGUR UPLOAD LAGI BUG!!.</div>
 
             <footer class="application-footer-copyright">
-                &copy; 2025 PuddingMilki. All Rights Reserved. <br>
-                SSRP HELPER FOR SAMP ROLEPLAY COMMUNITIES.
+                &copy; 2025 PuddingMilki. Hak Cipta Dilindungi. <br>
+                SSRP HELPER V1.4.0 RELEASE  || DIBUAT KHUSUS UNTUK ROLEPLAYERS SEJATI.
             </footer>
         </div>
 
         <div class="visual-rendering-stage-wrapper">
+            <div class="zoom-controls-overlay">
+                <button class="zoom-btn" onclick="zoomCanvas(0.1)" title="Perbesar">+</button>
+                <span class="zoom-label" id="zoomLevelLabel">100%</span>
+                <button class="zoom-btn" onclick="zoomCanvas(-0.1)" title="Perkecil">-</button>
+                <button class="zoom-btn" onclick="resetView()" title="Sesuaikan Layar" style="width: auto; padding: 0 10px;">FIT</button>
+            </div>
+
             <div class="visual-rendering-stage-container" id="primaryRenderingStageContainer">
                 <canvas id="mainGraphicsRenderingContext"></canvas>
             </div>
             <div class="multi-asset-management-strip" id="multiAssetFilmstripContainer">
-                </div>
+            </div>
         </div>
     </div>
 
@@ -412,38 +525,57 @@
         const resolutionHeightInput = document.getElementById('inputDimensionHeight');
         const stageContainer = document.getElementById('primaryRenderingStageContainer');
         const filmstripContainer = document.getElementById('multiAssetFilmstripContainer');
-        const modalElement = document.getElementById('helpModal');
-
+        
         let multiImageRepository = [];
         let activeAssetIndexReference = -1;
+        let exportCounter = 1;
+        let undoStack = [];
+        let redoStack = [];
+        const MAX_HISTORY_STEPS = 50;
+        let currentZoom = 1.0;
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        let panTranslateX = 0;
+        let panTranslateY = 0;
 
         let layers = {
-            'TL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 3 },
-            'TR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 3 },
-            'BL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 80 },
-            'BR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 80 }
+            'TL': { text: '', fontSize: 27, lineHeight: 27, x: 1.5, y: 3, strokeSize: 3 },
+            'TR': { text: '', fontSize: 27, lineHeight: 27, x: 60, y: 3, strokeSize: 3 },
+            'BL': { text: '', fontSize: 27, lineHeight: 27, x: 1.5, y: 80, strokeSize: 3 },
+            'BR': { text: '', fontSize: 27, lineHeight: 27, x: 60, y: 80, strokeSize: 3 }
         };
         let currentActiveLayerID = 'TL';
+
+        let objectData = { img: null, size: 50, x: 50, y: 50, filename: '' };
+
 
         canvasElement.width = 1920;
         canvasElement.height = 1080;
 
-        function toggleHelpModal() {
-            if (modalElement.style.display === 'flex') {
-                modalElement.style.display = 'none';
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
             } else {
-                modalElement.style.display = 'flex';
+                document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+                modal.style.display = 'flex';
             }
         }
 
         function getFreshLayerTemplate() {
             return {
-                'TL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 3 },
-                'TR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 3 },
-                'BL': { text: '', fontSize: 18, lineHeight: 22, x: 1.5, y: 80 },
-                'BR': { text: '', fontSize: 18, lineHeight: 22, x: 60, y: 80 }
+                'TL': { text: '', fontSize: 27, lineHeight: 27, x: 1.5, y: 3, strokeSize: 3 },
+                'TR': { text: '', fontSize: 27, lineHeight: 27, x: 60, y: 3, strokeSize: 3 },
+                'BL': { text: '', fontSize: 27, lineHeight: 27, x: 1.5, y: 80, strokeSize: 3 },
+                'BR': { text: '', fontSize: 27, lineHeight: 27, x: 60, y: 80, strokeSize: 3 }
             };
         }
+
+         function getFreshObjectTemplate() {
+            return { img: null, size: 50, x: 50, y: 50, filename: '' };
+        }
+
 
         function switchActiveLayerContext(layerID) {
             
@@ -451,14 +583,21 @@
             document.getElementById(`btn-${layerID}`).classList.add('active-layer');
             
             currentActiveLayerID = layerID;
-            document.getElementById('currentLayerLabel').innerText = layerID === 'TL' ? 'KIRI ATAS' : layerID === 'TR' ? 'KANAN ATAS' : layerID === 'BL' ? 'KIRI ' : 'KANAN BAWAH';
-BAWAH
+            let labelText = "";
+            if(layerID === 'TL') labelText = 'KIRI ATAS';
+            else if(layerID === 'TR') labelText = 'KANAN ATAS';
+            else if(layerID === 'BL') labelText = 'KIRI BAWAH';
+            else if(layerID === 'BR') labelText = 'KANAN BAWAH';
+
+            document.getElementById('currentLayerLabel').innerText = labelText;
+
             const data = layers[layerID];
             textInputInterface.value = data.text;
             document.getElementById('inputFontSizeController').value = data.fontSize;
             document.getElementById('inputLineHeightController').value = data.lineHeight;
             document.getElementById('inputPositionXController').value = data.x;
             document.getElementById('inputPositionYController').value = data.y;
+            document.getElementById('inputStrokeController').value = data.strokeSize || 3;
 
             updateUIDisplays();
         }
@@ -470,6 +609,7 @@ BAWAH
             data.lineHeight = parseInt(document.getElementById('inputLineHeightController').value);
             data.x = parseFloat(document.getElementById('inputPositionXController').value);
             data.y = parseFloat(document.getElementById('inputPositionYController').value);
+            data.strokeSize = parseInt(document.getElementById('inputStrokeController').value);
 
             if(activeAssetIndexReference !== -1) {
                 multiImageRepository[activeAssetIndexReference].layerData = JSON.parse(JSON.stringify(layers));
@@ -479,11 +619,65 @@ BAWAH
             initiateCanvasRenderingSequence();
         }
 
+        function handleObjectUpload(inputElement) {
+            if (!inputElement.files || inputElement.files.length === 0) return;
+            const file = inputElement.files[0];
+            const resourceReader = new FileReader();
+            resourceReader.onload = eventArgs => {
+                const tempImageObj = new Image();
+                tempImageObj.onload = () => {
+                    objectData.img = tempImageObj;
+                    objectData.filename = file.name;
+                    document.getElementById('objectUploadLabel').innerText = "DIPILIH: " + file.name.substring(0, 10) + "...";
+                    updateActiveObjectData();
+                };
+                tempImageObj.src = eventArgs.target.result;
+            };
+            resourceReader.readAsDataURL(file);
+             inputElement.value = ''; 
+        }
+
+        function updateActiveObjectData() {
+            objectData.size = parseInt(document.getElementById('inputObjSizeController').value);
+            objectData.x = parseFloat(document.getElementById('inputObjXController').value);
+            objectData.y = parseFloat(document.getElementById('inputObjYController').value);
+
+             if(activeAssetIndexReference !== -1) {
+                multiImageRepository[activeAssetIndexReference].objectData = {
+                    img: objectData.img,
+                    size: objectData.size,
+                    x: objectData.x,
+                    y: objectData.y,
+                    filename: objectData.filename
+                };
+            }
+            updateObjectUIDisplays();
+            initiateCanvasRenderingSequence();
+        }
+        
+        function removeActiveObject() {
+             objectData = getFreshObjectTemplate();
+             document.getElementById('objectUploadLabel').innerText = "UNGGAH OBJEK (OPSIONAL)";
+             if(activeAssetIndexReference !== -1) {
+                multiImageRepository[activeAssetIndexReference].objectData = getFreshObjectTemplate();
+             }
+             updateObjectUIDisplays();
+             initiateCanvasRenderingSequence();
+        }
+
+        function updateObjectUIDisplays() {
+             document.getElementById('displayObjSize').innerText = objectData.size + '%';
+             document.getElementById('displayObjX').innerText = objectData.x + '%';
+             document.getElementById('displayObjY').innerText = objectData.y + '%';
+             if(!objectData.img) document.getElementById('objectUploadLabel').innerText = "UNGGAH OBJEK (OPSIONAL)";
+        }
+
         function updateUIDisplays() {
             document.getElementById('displayFontSize').innerText = document.getElementById('inputFontSizeController').value;
             document.getElementById('displayLineHeight').innerText = document.getElementById('inputLineHeightController').value;
             document.getElementById('displayPositionX').innerText = document.getElementById('inputPositionXController').value + '%';
             document.getElementById('displayPositionY').innerText = document.getElementById('inputPositionYController').value + '%';
+            document.getElementById('displayStrokeSize').innerText = document.getElementById('inputStrokeController').value;
         }
 
         function processIncomingFileStream(fileList) {
@@ -495,7 +689,8 @@ BAWAH
                         multiImageRepository.push({ 
                             id: Date.now() + Math.random(), 
                             img: tempImageObj,
-                            layerData: getFreshLayerTemplate()
+                            layerData: getFreshLayerTemplate(),
+                            objectData: getFreshObjectTemplate()
                         });
                         
                         if (activeAssetIndexReference === -1) setActiveAssetByIndex(0);
@@ -517,6 +712,7 @@ BAWAH
 
             if (activeAssetIndexReference !== -1 && multiImageRepository[activeAssetIndexReference]) {
                 multiImageRepository[activeAssetIndexReference].layerData = JSON.parse(JSON.stringify(layers));
+                multiImageRepository[activeAssetIndexReference].objectData = {...objectData}; 
             }
 
             if (index < 0) index = 0;
@@ -525,6 +721,7 @@ BAWAH
 
             const currentAsset = multiImageRepository[index];
             layers = JSON.parse(JSON.stringify(currentAsset.layerData));
+            objectData = {...currentAsset.objectData};
 
             resolutionWidthInput.value = currentAsset.img.width;
             resolutionHeightInput.value = currentAsset.img.height;
@@ -532,8 +729,10 @@ BAWAH
             canvasElement.height = currentAsset.img.height;
 
             switchActiveLayerContext(currentActiveLayerID);
+            updateObjectUIDisplays();
             renderFilmstripInterface();
             initiateCanvasRenderingSequence();
+            resetView(); 
         }
 
         function initiateCanvasRenderingSequence() {
@@ -548,8 +747,17 @@ BAWAH
                 graphicsContext2D.fillStyle = '#222';
                 graphicsContext2D.font = 'bold 30px Oswald';
                 graphicsContext2D.textAlign = 'center';
-                graphicsContext2D.fillText("TIDAK ADA FOTO YANG AKTIF", canvasElement.width / 2, canvasElement.height / 2);
+                graphicsContext2D.fillText("TIDAK ADA FOTO BACKGROUND", canvasElement.width / 2, canvasElement.height / 2);
             }
+
+            if (objectData.img) {
+                const objWidth = (canvasElement.width * (objectData.size / 100));
+                const objHeight = objWidth * (objectData.img.height / objectData.img.width); 
+                const objX = (canvasElement.width * objectData.x / 100) - (objWidth / 2);
+                const objY = (canvasElement.height * objectData.y / 100) - (objHeight / 2);
+                graphicsContext2D.drawImage(objectData.img, objX, objY, objWidth, objHeight);
+            }
+
 
             const selectedFontFamily = document.getElementById('fontFamilySelector').value;
             const layerKeys = ['TL', 'TR', 'BL', 'BR'];
@@ -572,7 +780,7 @@ BAWAH
                     let activeColor = '#FFFFFF';
                     
                     const lowerCaseLine = textLine.toLowerCase();
-                    if (textLine.trim().startsWith('*')) activeColor = '#C2A2DA';
+                    if (textLine.trim().startsWith('*')) activeColor = '#C2A2DA'; 
                     if (lowerCaseLine.includes('whispers:')) activeColor = '#FFFF00';
                     if (textLine.trim().startsWith('((') || textLine.includes(' (( ')) activeColor = '#A9A9A9';
 
@@ -583,12 +791,11 @@ BAWAH
                         if (segment.match(/^{[A-Fa-f0-9]{6}}$/)) {
                             activeColor = '#' + segment.replace('{','').replace('}','');
                         } else if (segment !== '') {
-                            graphicsContext2D.lineWidth = 3; 
+                            graphicsContext2D.lineWidth = layer.strokeSize || 3; 
+                            graphicsContext2D.lineJoin = 'round';
+                            graphicsContext2D.miterLimit = 2;
                             graphicsContext2D.strokeStyle = 'black'; 
                             graphicsContext2D.strokeText(segment, currentX, currentY);
-                            
-                            graphicsContext2D.lineWidth = 1; 
-                            graphicsContext2D.strokeText(segment, currentX + 1, currentY + 1);
                             
                             graphicsContext2D.fillStyle = activeColor; 
                             graphicsContext2D.fillText(segment, currentX, currentY);
@@ -599,6 +806,68 @@ BAWAH
                 });
             });
         }
+
+
+        function zoomCanvas(delta) {
+            currentZoom += delta;
+            if (currentZoom < 0.05) currentZoom = 0.05;
+            if (currentZoom > 5.0) currentZoom = 5.0;
+            applyTransform();
+        }
+
+        function resetView() {
+            const container = stageContainer;
+            const canvas = canvasElement;
+            const containerAspect = container.clientWidth / container.clientHeight;
+            const canvasAspect = canvas.width / canvas.height;
+            let newZoom;
+
+            if (canvasAspect > containerAspect) {
+                newZoom = (container.clientWidth - 40) / canvas.width; 
+            } else {
+                newZoom = (container.clientHeight - 40) / canvas.height;
+            }
+            
+            currentZoom = newZoom;
+            panTranslateX = 0;
+            panTranslateY = 0;
+            applyTransform();
+        }
+
+        function applyTransform() {
+            canvasElement.style.transform = `translate(${panTranslateX}px, ${panTranslateY}px) scale(${currentZoom})`;
+            document.getElementById('zoomLevelLabel').innerText = Math.round(currentZoom * 100) + '%';
+        }
+
+        stageContainer.addEventListener('mousedown', (e) => {
+            if(e.target !== canvasElement && e.target !== stageContainer) return;
+            isPanning = true;
+            panStartX = e.clientX - panTranslateX;
+            panStartY = e.clientY - panTranslateY;
+            stageContainer.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            e.preventDefault();
+            panTranslateX = e.clientX - panStartX;
+            panTranslateY = e.clientY - panStartY;
+            applyTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            isPanning = false;
+            stageContainer.style.cursor = 'grab';
+        });
+
+        stageContainer.addEventListener('wheel', (e) => {
+            if(e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                zoomCanvas(delta);
+            }
+        });
+
 
         function initializeGlobalDragAndDropEventListeners() {
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -648,11 +917,13 @@ BAWAH
         }
 
         function executeGlobalAssetPurgeSequence() {
-            if(confirm('CONFIRM: REMOVE ALL IMAGES?')) {
+            if(confirm('KONFIRMASI: HAPUS SEMUA FOTO?')) {
                 multiImageRepository = [];
                 activeAssetIndexReference = -1;
                 renderFilmstripInterface();
                 initiateCanvasRenderingSequence();
+                removeActiveObject();
+                exportCounter = 1; 
             }
         }
 
@@ -671,11 +942,16 @@ BAWAH
                 case '16:9': calculatedHeight = Math.round(currentBaseWidth * (9/16)); break;
                 case '4:3':  calculatedHeight = Math.round(currentBaseWidth * (3/4)); break;
                 case '1:1':  calculatedHeight = currentBaseWidth; break;
-                case '3:4':  calculatedHeight = Math.round(currentBaseWidth * (4/3)); break;
-                case '9:16': calculatedHeight = Math.round(currentBaseWidth * (16/9)); break;
+                case '21:9': calculatedHeight = Math.round(currentBaseWidth * (9/21)); break;
                 default: return;
             }
             resolutionHeightInput.value = calculatedHeight;
+            executeManualResolutionAdjustmentSequence();
+        }
+
+        function apply4KResolution() {
+            resolutionWidthInput.value = 3840;
+            resolutionHeightInput.value = 2160;
             executeManualResolutionAdjustmentSequence();
         }
 
@@ -708,25 +984,37 @@ BAWAH
         }
 
         function executeGlobalTextErasureSequence() {
-            if(confirm('Clear text for THIS ZONE only?')) {
+            if(confirm('Bersihkan teks untuk ZONA INI saja?')) {
                 textInputInterface.value = '';
                 updateActiveLayerData();
             }
         }
 
         function generateAndDownloadFinalArtifact() {
-            if (activeAssetIndexReference === -1) return alert('ERROR: NO ACTIVE IMAGE');
+            if (activeAssetIndexReference === -1) return alert('ERROR: TIDAK ADA GAMBAR AKTIF');
+            
+            const inputName = document.getElementById('exportFilenameInput').value.trim();
+            let finalFilename = '';
+            
+            if (inputName) {
+                finalFilename = inputName;
+                if (!finalFilename.toLowerCase().endsWith('.png')) finalFilename += '.png';
+            } else {
+                finalFilename = `SSRPHELPER-EXPORT-${exportCounter}.png`;
+                exportCounter++;
+            }
+
             const downloadAnchor = document.createElement('a');
-            downloadAnchor.download = 'ssrp-images-export.png';
+            downloadAnchor.download = finalFilename;
             downloadAnchor.href = canvasElement.toDataURL('image/png');
             downloadAnchor.click();
         }
 
         async function transmitImageDataToImgurAPI() {
-            if (activeAssetIndexReference === -1) return alert('ERROR: NO ACTIVE IMAGE');
-            statusIndicatorLabel.innerText = "Encoding binary data stream...";
+            if (activeAssetIndexReference === -1) return alert('ERROR: TIDAK ADA GAMBAR AKTIF');
+            statusIndicatorLabel.innerText = "Mengkodekan data biner...";
             const base64EncodedData = canvasElement.toDataURL('image/png').split(',')[1];
-            statusIndicatorLabel.innerText = "Transmitting to Imgur endpoint...";
+            statusIndicatorLabel.innerText = "Mengirim ke server Imgur...";
             try {
                 const apiClientId = '2654c6086395349'; 
                 const formPayload = new FormData();
@@ -738,16 +1026,92 @@ BAWAH
                 const responseJson = await apiResponse.json();
                 if (responseJson.success) {
                     navigator.clipboard.writeText(responseJson.data.link);
-                    statusIndicatorLabel.innerText = "TRANSMISSION SUCCESSFUL. Link cached.";
+                    statusIndicatorLabel.innerText = "PENGIRIMAN SUKSES. Link disalin.";
                     statusIndicatorLabel.style.color = "#10b981";
-                    alert("LINK ACQUIRED:\n" + responseJson.data.link);
-                } else { throw new Error(responseJson.data.error || "Transmission Failed"); }
+                    alert("LINK BERHASIL DIDAPATKAN:\n" + responseJson.data.link);
+                } else { throw new Error(responseJson.data.error || "Gagal Mengirim"); }
             } catch (exception) {
-                statusIndicatorLabel.innerText = "TRANSMISSION FAILURE. Manual save advised.";
+                statusIndicatorLabel.innerText = "PENGIRIMAN GAGAL. Simpan manual saja.";
                 statusIndicatorLabel.style.color = "#dc2626";
-                alert("API Error: Transmission terminated.");
+                alert("API Error: Pengiriman dibatalkan.");
             }
         }
+
+
+        // --- SISTEM UNDO / REDO ---
+
+        function saveStateToHistory() {
+            // Kita simpan state SEBELUM perubahan terjadi
+            if (activeAssetIndexReference === -1) return;
+            
+            const currentState = {
+                layers: JSON.parse(JSON.stringify(layers)), // Deep copy layers
+                objectData: { ...objectData } // Shallow copy object (img reference aman)
+            };
+
+            undoStack.push(currentState);
+            
+            // Batasi jumlah history
+            if (undoStack.length > MAX_HISTORY_STEPS) undoStack.shift();
+            
+            // Tiap kali ada perubahan baru, redo stack harus bersih
+            redoStack = [];
+        }
+
+        function executeUndo() {
+            if (undoStack.length === 0) return;
+
+            // 1. Simpan state saat ini ke Redo Stack
+            const currentState = {
+                layers: JSON.parse(JSON.stringify(layers)),
+                objectData: { ...objectData }
+            };
+            redoStack.push(currentState);
+
+            // 2. Ambil state terakhir dari Undo Stack
+            const previousState = undoStack.pop();
+            
+            // 3. Terapkan state
+            applyState(previousState);
+        }
+
+        function executeRedo() {
+            if (redoStack.length === 0) return;
+
+            // 1. Simpan state saat ini ke Undo Stack
+            const currentState = {
+                layers: JSON.parse(JSON.stringify(layers)),
+                objectData: { ...objectData }
+            };
+            undoStack.push(currentState);
+
+            // 2. Ambil state masa depan dari Redo Stack
+            const nextState = redoStack.pop();
+
+            // 3. Terapkan state
+            applyState(nextState);
+        }
+
+        function applyState(state) {
+            // Restore Layers
+            layers = state.layers;
+            // Restore Object
+            objectData = state.objectData;
+
+            // Update UI agar slider/input sesuai dengan state yang di-undo
+            switchActiveLayerContext(currentActiveLayerID); 
+            updateObjectUIDisplays();
+            
+            // Render ulang Canvas
+            initiateCanvasRenderingSequence();
+
+            // Sync ke repository utama agar tidak hilang saat ganti gambar
+            if(activeAssetIndexReference !== -1) {
+                multiImageRepository[activeAssetIndexReference].layerData = JSON.parse(JSON.stringify(layers));
+                multiImageRepository[activeAssetIndexReference].objectData = {...objectData};
+            }
+        }
+
 
         window.onload = () => { 
             initializeGlobalDragAndDropEventListeners();
