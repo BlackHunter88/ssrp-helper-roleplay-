@@ -3,756 +3,704 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAMP SSRP HELPER | Edisi Sultan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>SSRP HELPER | Elite Edition v3.7</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
         :root {
-            --global-background-base: #020202;
-            --global-background-surface: #080808;
-            --global-background-card: #0f0f0f;
-            --global-background-terminal: #000000;
+            --bg-deep: #020202;
+            --bg-surface: #0a0a0a;
+            --accent: #e11d48;
+            --accent-glow: rgba(225, 29, 72, 0.6);
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border: rgba(255,255,255,0.08);
             
-            --global-accent-primary: #e11d48;
-            --global-accent-glow: rgba(225, 29, 72, 0.6);
-            --global-accent-subtle: rgba(225, 29, 72, 0.15);
-            
-            --global-text-high-contrast: #ffffff;
-            --global-text-medium-contrast: #a1a1aa;
-            --global-text-low-contrast: #52525b;
-            
-            --global-border-color: #27272a;
-            --global-border-light: rgba(255,255,255,0.08);
-            --global-border-radius-large: 16px;
-            --global-border-radius-medium: 12px;
-            --global-border-radius-small: 6px;
+            --font-head: 'Oswald', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-tech: 'JetBrains Mono', monospace;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; text-decoration: none; -webkit-font-smoothing: antialiased; }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
         
         body {
-            background-color: var(--global-background-base);
-            color: var(--global-text-high-contrast);
-            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
             overflow-x: hidden;
-            /* Texture Noise Halus */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
         }
 
-        html { scroll-behavior: smooth; }
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.6;
+            animation: gridPan 60s linear infinite;
+        }
+        @keyframes gridPan { 0% { background-position: 0 0; } 100% { background-position: 50px 50px; } }
 
-        .main-layout-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-        .text-alignment-center { text-align: center; }
-        .text-highlight-crimson { color: var(--global-accent-primary); font-weight: 700; text-shadow: 0 0 20px rgba(225,29,72,0.4); }
-        .typography-monospace { font-family: 'JetBrains Mono', monospace; }
+        ::selection { background: var(--accent); color: #fff; }
 
-        /* --- INITIAL LOADING OVERLAY --- */
-        .application-initialization-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--global-background-base); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s;
+        .cursor-dot { width: 6px; height: 6px; background: var(--accent); position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: opacity 0.3s; }
+        .cursor-circle { width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.3); position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, border-color 0.2s, background 0.2s; }
+        .cursor-tooltip {
+            position: fixed; pointer-events: none; z-index: 10000;
+            background: rgba(255,255,255,0.9); color: #000;
+            padding: 4px 8px; border-radius: 2px;
+            font-family: var(--font-tech); font-size: 10px; font-weight: 700;
+            opacity: 0; transform: translate(20px, 20px); transition: opacity 0.2s;
         }
-        .initialization-content-wrapper { text-align: center; width: 300px; }
-        .initialization-status-text {
-            font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--global-accent-primary);
-            margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;
-        }
-        .initialization-progress-track {
-            width: 100%; height: 2px; background: var(--global-border-color); position: relative; overflow: hidden;
-        }
-        .initialization-progress-fill {
-            position: absolute; left: 0; top: 0; height: 100%; width: 0%;
-            background: var(--global-accent-primary); box-shadow: 0 0 20px var(--global-accent-primary);
-            transition: width 0.1s linear;
-        }
-        .initialization-percentage-display {
-            font-family: 'Oswald', sans-serif; font-size: 48px; font-weight: 700;
-            color: var(--global-text-high-contrast); margin-bottom: 10px; display: block;
-        }
+        .cursor-tooltip.active { opacity: 1; }
 
-        /* --- LAYER 1: PRE-FLIGHT CHECK OVERLAY --- */
-        .pre-flight-check-overlay-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 2, 2, 0.95); z-index: 10001;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
-        }
-        .pre-flight-check-overlay-layer.active-state { display: flex; }
-        .pre-flight-spinner {
-            width: 50px; height: 50px; border: 3px solid var(--global-border-color);
-            border-top: 3px solid var(--global-accent-primary); border-radius: 50%;
-            animation: AnimationSpinInfinite 0.8s linear infinite; margin-bottom: 20px;
-        }
-        .pre-flight-status-text { font-family: 'JetBrains Mono'; font-size: 14px; color: var(--global-text-medium-contrast); letter-spacing: 1px; }
-        @keyframes AnimationSpinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- LAYER 2: TERMINAL OVERLAY --- */
-        .cybernetic-terminal-overlay-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--global-background-terminal); z-index: 10002;
-            display: none; padding: 40px;
-            font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #00ff41; overflow: hidden;
-        }
-        .cybernetic-terminal-overlay-layer.active-state { display: block; }
-        .terminal-log-entry-line { margin-bottom: 5px; opacity: 0; animation: AnimationTypeWriterLine 0.1s forwards; }
-        .terminal-active-cursor-indicator { display: inline-block; width: 10px; height: 20px; background: #00ff41; animation: AnimationCursorBlink 1s infinite; vertical-align: middle; }
-        @keyframes AnimationTypeWriterLine { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes AnimationCursorBlink { 50% { opacity: 0; } }
-
-        /* --- HERO SECTION --- */
-        .hero-section-wrapper {
-            padding: 100px 0 80px; position: relative;
-            background: radial-gradient(circle at center 30%, rgba(225, 29, 72, 0.1) 0%, transparent 60%);
-            min-height: 85vh; display: flex; flex-direction: column; justify-content: center;
-        }
-
-        .brand-identity-logo {
-            font-family: 'Oswald'; font-size: 24px; letter-spacing: 4px;
-            margin-bottom: 40px; display: inline-block;
-            border: 1px solid var(--global-border-color); padding: 8px 16px; border-radius: 4px;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-        }
-
-        h1 {
-            font-family: 'Oswald', sans-serif; font-size: clamp(2.5rem, 6vw, 5.5rem);
-            line-height: 1.05; text-transform: uppercase; margin-bottom: 24px; letter-spacing: -1px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .hero-subtitle-text {
-            font-size: 1.125rem; color: var(--global-text-medium-contrast); max-width: 650px;
-            margin: 0 auto 60px; line-height: 1.6; font-weight: 300;
-        }
-
-        /* --- BUTTONS: SWIPE EFFECT --- */
-        .interactive-launch-button {
-            display: inline-flex; align-items: center; gap: 12px;
-            font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 700; text-transform: uppercase;
-            color: var(--global-text-high-contrast); background: transparent; 
-            border: 1px solid var(--global-border-color); padding: 14px 28px; border-radius: var(--global-border-radius-small);
-            cursor: pointer; overflow: hidden; position: relative; z-index: 1;
-            transition: border-color 0.3s;
-        }
-        .interactive-launch-button::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%;
-            background: var(--global-accent-primary); z-index: -1;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .interactive-launch-button:hover { border-color: var(--global-accent-primary); }
-        .interactive-launch-button:hover::before { width: 100%; }
-        .interactive-launch-button svg { width: 14px; fill: var(--global-text-high-contrast); transition: transform 0.3s; }
-        .interactive-launch-button:hover svg { transform: translateX(3px); }
-
-        /* --- LUXURY MARQUEE --- */
-        .luxury-marquee-wrapper {
-            width: 100%; overflow: hidden; white-space: nowrap;
-            background: #000; border-top: 1px solid var(--global-border-color); border-bottom: 1px solid var(--global-border-color);
-            padding: 24px 0; margin-bottom: 100px; display: flex; align-items: center;
-        }
-        .luxury-marquee-track {
-            display: inline-flex; animation: AnimationMarqueeScroll 30s linear infinite;
-        }
-        .luxury-marquee-item {
-            font-family: 'Oswald'; font-weight: 700; font-size: 32px; 
-            color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.3); /* Hollow Text */
-            margin: 0 40px; text-transform: uppercase; letter-spacing: 2px;
-            display: flex; align-items: center; gap: 15px; transition: 0.3s;
-        }
-        .luxury-marquee-wrapper:hover .luxury-marquee-item {
-            color: var(--global-text-high-contrast); -webkit-text-stroke: 0; text-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
-        .marquee-separator { width: 8px; height: 8px; background: var(--global-accent-primary); transform: rotate(45deg); display: inline-block; }
-
-        @keyframes AnimationMarqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* --- BENTO GRID --- */
-        .bento-grid-section-wrapper { padding-bottom: 120px; }
-        .bento-grid-header { margin-bottom: 70px; }
-        .bento-grid-header h2 { font-family: 'Oswald'; font-size: 36px; text-transform: uppercase; letter-spacing: 1px; }
+        .loader-overlay { position: fixed; inset: 0; background: #000; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .loader-text { font-family: var(--font-head); font-size: 60px; font-weight: 700; margin-bottom: 10px; }
+        .loader-bar { width: 300px; height: 2px; background: #222; position: relative; margin-top: 20px; }
+        .loader-fill { height: 100%; width: 0%; background: var(--accent); position: absolute; box-shadow: 0 0 20px var(--accent); }
         
-        .bento-grid-layout {
-            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 320px);
-            gap: 24px; max-width: 1150px; margin: 0 auto;
+        .layer-terminal { position: fixed; inset: 0; background: #000; z-index: 20002; display: none; padding: 40px; font-family: var(--font-tech); color: #00ff41; }
+        .layer-preflight { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 20001; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .spinner { width: 40px; height: 40px; border: 2px solid #333; border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+        .text-center { text-align: center; }
+        .text-crimson { color: var(--accent); text-shadow: 0 0 30px var(--accent-glow); }
+        .section-title { font-family: var(--font-head); font-size: 48px; text-transform: uppercase; text-align: center; margin-bottom: 60px; }
+
+        .hero { 
+            min-height: 100vh; display: flex; flex-direction: column; justify-content: center; 
+            padding: 150px 0 100px; position: relative; overflow: hidden;
+        }
+        .hero-glow-center { 
+            position: absolute; width: 800px; height: 800px; 
+            background: radial-gradient(circle, rgba(225,29,72,0.12) 0%, transparent 60%); 
+            top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            pointer-events: none; filter: blur(80px); z-index: 0;
+        }
+
+        .brand-tag { 
+            border: 1px solid var(--border); padding: 8px 16px; border-radius: 50px; 
+            font-family: var(--font-tech); font-size: 11px; letter-spacing: 2px; 
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: inline-block; margin-bottom: 30px; 
+        }
+
+        h1 { 
+            font-family: var(--font-head); font-size: clamp(3.5rem, 8vw, 7rem); 
+            line-height: 0.9; text-transform: uppercase; margin-bottom: 30px; 
+            position: relative; z-index: 2; color: #fff;
         }
         
-        .bento-grid-card-item {
-            background: linear-gradient(180deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.9) 100%);
-            border: 1px solid var(--global-border-light);
-            border-radius: var(--global-border-radius-large);
-            padding: 40px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
-            transition: all 0.4s ease; backdrop-filter: blur(10px);
-            cursor: default;
+        .hero-sub { 
+            font-size: 1.1rem; color: var(--text-muted); max-width: 600px; 
+            margin: 0 auto 60px; line-height: 1.6; position: relative; z-index: 2;
         }
 
-        .bento-grid-card-item:hover { 
-            border-color: var(--global-accent-primary); 
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.8);
+        .platform-wrapper { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+            gap: 30px; max-width: 900px; margin: 0 auto; perspective: 1000px; z-index: 2; position: relative;
+        }
+        .plat-card { 
+            background: rgba(15,15,15,0.8); border: 1px solid var(--border); 
+            border-radius: 20px; padding: 40px; text-align: left; 
+            position: relative; overflow: hidden; backdrop-filter: blur(10px); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transform-style: preserve-3d; 
+        }
+        .plat-card:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-10px) rotateX(5deg); }
+        .plat-icon { width: 60px; height: 60px; background: #111; border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; transition: 0.3s; }
+        .plat-card:hover .plat-icon { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
+        .plat-icon svg { width: 30px; fill: white; }
+
+        .btn-action { 
+            width: 100%; padding: 15px; margin-top: 25px; 
+            background: transparent; border: 1px solid var(--border); 
+            color: #fff; font-family: var(--font-tech); font-weight: 700; font-size: 12px; 
+            text-transform: uppercase; letter-spacing: 1px; 
+            display: flex; align-items: center; justify-content: center; gap: 10px; 
+            transition: 0.3s; position: relative; overflow: hidden; cursor: pointer;
+        }
+        .btn-action::before { 
+            content: ''; position: absolute; top:0; left:0; width:0%; height:100%; 
+            background: var(--accent); z-index: -1; transition: width 0.3s ease; 
+        }
+        .btn-action:hover::before { width: 100%; }
+        .btn-action:hover { border-color: var(--accent); }
+
+        .marquee-strip { 
+            background: #000; padding: 30px 0; 
+            border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); 
+            overflow: hidden; white-space: nowrap; position: relative; z-index: 5; margin-bottom: 100px;
+        }
+        .marquee-content { display: inline-flex; animation: scroll 30s linear infinite; }
+        .marquee-txt { 
+            font-family: var(--font-head); font-size: 48px; font-weight: 700; margin: 0 50px; 
+            color: #fff; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .marquee-txt span { color: var(--accent); margin-left: 20px; }
+        @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        .features-sec { padding: 50px 0 150px; }
+        
+        .sys-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
         
-        .bento-icon-container svg { 
-            width: 44px; height: 44px; fill: var(--global-text-medium-contrast); 
-            transition: all 0.4s ease; margin-bottom: 24px; opacity: 0.8;
+        .sys-card {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            padding: 30px; position: relative; overflow: hidden;
+            transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            display: flex; flex-direction: column; align-items: flex-start;
+            height: 100px;
         }
-        .bento-grid-card-item:hover .bento-icon-container svg { fill: var(--global-accent-primary); opacity: 1; transform: scale(1.1); filter: drop-shadow(0 0 10px var(--global-accent-glow)); }
-
-        .bento-card-span-large { grid-column: span 2; grid-row: span 2; background: linear-gradient(135deg, #18181b 0%, #050505 100%); }
-        .bento-card-span-wide { grid-column: span 2; }
         
-        .bento-card-title { font-family: 'Oswald'; font-size: 24px; margin-bottom: 12px; z-index: 2; position: relative; color: var(--global-text-high-contrast); letter-spacing: 0.5px; }
-        .bento-card-description { font-size: 15px; color: var(--global-text-medium-contrast); line-height: 1.6; z-index: 2; position: relative; font-weight: 300; }
+        .sys-card:hover { 
+            height: 200px;
+            background: rgba(255,255,255,0.05); border-color: var(--accent); 
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+        }
         
-        .code-snippet-visual-element {
-            font-family: 'JetBrains Mono'; font-size: 11px; color: #a9b7c6;
-            background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; margin-top: auto; 
-            border: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 2;
+        .sys-header { display: flex; align-items: center; gap: 15px; width: 100%; margin-bottom: 20px; }
+        
+        .sys-icon { 
+            width: 40px; height: 40px; fill: var(--text-muted); 
+            transition: 0.3s;
+        }
+        .sys-card:hover .sys-icon { fill: var(--accent); transform: scale(1.1); filter: drop-shadow(0 0 10px var(--accent-glow)); }
+        
+        .sys-title { font-family: var(--font-head); font-size: 18px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .sys-desc { 
+            font-family: var(--font-body); font-size: 14px; color: var(--text-muted); line-height: 1.6;
+            opacity: 0; transform: translateY(20px); transition: 0.3s ease-in-out;
+        }
+        .sys-card:hover .sys-desc { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+
+        .sys-card::after { content: '+'; position: absolute; top: 10px; right: 15px; color: var(--border); font-family: var(--font-tech); transition: 0.3s; }
+        .sys-card:hover::after { color: var(--accent); transform: rotate(90deg); }
+
+        .why-section { padding-bottom: 150px; }
+        .cyber-accordion { display: flex; height: 500px; gap: 10px; width: 100%; }
+        
+        .acc-item {
+            flex: 1; position: relative; overflow: hidden;
+            background: #0f0f0f; border: 1px solid var(--border); border-radius: 20px;
+            transition: flex 0.6s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s;
+            cursor: pointer; display: flex; flex-direction: column; padding: 30px;
+        }
+        .acc-item:hover, .acc-item.active { flex: 3.5; background: linear-gradient(135deg, #111 0%, #050505 100%); border-color: var(--accent); }
+        
+        .acc-bg-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 150px; color: rgba(255,255,255,0.02); pointer-events: none; transition: 0.6s; font-family: var(--font-head); }
+        .acc-item:hover .acc-bg-icon, .acc-item.active .acc-bg-icon { color: rgba(225, 29, 72, 0.05); transform: translate(-20%, -50%) rotate(0deg); }
+
+        .acc-num { font-family: var(--font-tech); color: var(--accent); font-size: 14px; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); transition: 0.5s; }
+        .acc-head { font-family: var(--font-head); font-size: 24px; text-transform: uppercase; writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%) rotate(180deg); transition: 0.5s; margin: 0; white-space: nowrap; }
+
+        .acc-item:hover .acc-num, .acc-item.active .acc-num { top: 30px; left: 30px; transform: none; }
+        .acc-item:hover .acc-head, .acc-item.active .acc-head { writing-mode: horizontal-tb; transform: none; bottom: auto; top: 60px; left: 30px; font-size: 42px; width: auto; }
+
+        .acc-desc { position: absolute; bottom: 30px; left: 30px; max-width: 400px; opacity: 0; transform: translateY(20px); transition: 0.5s 0.1s; font-size: 15px; color: var(--text-muted); line-height: 1.6; }
+        .acc-item:hover .acc-desc, .acc-item.active .acc-desc { opacity: 1; transform: translateY(0); }
+        
+        .acc-code { position: absolute; top: 50%; right: 30px; transform: translateY(-50%) translateX(50px); width: 280px; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-family: var(--font-tech); font-size: 11px; color: #ccc; opacity: 0; transition: 0.5s 0.2s; }
+        .acc-item:hover .acc-code, .acc-item.active .acc-code { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+        .workflow-sec { padding: 100px 0; background: var(--bg-surface); border-block: 1px solid var(--border); }
+        
+        .timeline-wrapper { 
+            display: flex; justify-content: space-between; position: relative; margin-top: 80px; 
+        }
+        .timeline-line {
+            position: absolute; top: 30px; left: 50px; right: 50px; height: 2px;
+            background: #222; z-index: 0;
+        }
+        .timeline-line-active {
+            position: absolute; top: 30px; left: 50px; height: 2px; width: 0%;
+            background: var(--accent); z-index: 1; box-shadow: 0 0 15px var(--accent);
+            transition: width 1.5s ease-out;
         }
 
-        /* --- PLATFORM SELECTOR --- */
-        .platform-selector-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto; }
-        .platform-selection-card {
-            background: var(--global-background-card); 
-            border: 1px solid var(--global-border-light); border-radius: var(--global-border-radius-large);
-            padding: 50px; text-align: left; position: relative; overflow: hidden;
-            transition: all 0.3s ease; cursor: pointer;
+        .timeline-step { 
+            position: relative; z-index: 2; width: 30%; text-align: center; opacity: 0; transform: translateY(20px);
         }
-        .platform-selection-card:hover { transform: translateY(-8px); border-color: var(--global-text-low-contrast); }
-        .platform-icon-wrapper {
-            width: 70px; height: 70px; background: rgba(255,255,255,0.03);
-            border: 1px solid var(--global-border-light); border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 30px; transition: 0.3s;
+        
+        .tl-node {
+            width: 60px; height: 60px; background: var(--bg-deep); border: 2px solid var(--border);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 30px; font-family: var(--font-head); font-size: 24px; color: var(--text-muted);
+            transition: 0.4s; position: relative;
         }
-        .platform-selection-card:hover .platform-icon-wrapper { background: var(--global-accent-primary); border-color: var(--global-accent-primary); box-shadow: 0 0 20px var(--global-accent-glow); }
-        .platform-selection-card:hover .platform-icon-wrapper svg { fill: white; }
-        .platform-icon-wrapper svg { width: 32px; height: 32px; fill: var(--global-text-high-contrast); }
-        .platform-selection-card h2 { font-family: 'Oswald'; font-size: 26px; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
-        .platform-selection-card p { color: var(--global-text-medium-contrast); font-size: 15px; line-height: 1.6; margin-bottom: 40px; font-weight: 300; }
+        .timeline-step:hover .tl-node { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 20px rgba(225,29,72,0.4); transform: scale(1.1); }
+        
+        .tl-content h3 { font-family: var(--font-head); font-size: 24px; text-transform: uppercase; margin-bottom: 10px; }
+        .tl-content p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-        /* --- WORKFLOW SECTION --- */
-        .workflow-section-wrapper { padding: 120px 0; background: var(--global-background-surface); border-top: 1px solid var(--global-border-light); border-bottom: 1px solid var(--global-border-light); }
-        .section-header-title { font-family: 'Oswald'; font-size: 36px; text-transform: uppercase; margin-bottom: 70px; text-align: center; letter-spacing: 1px; }
-        .workflow-steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
-        .workflow-step-item { position: relative; padding: 30px; border-left: 2px solid var(--global-border-color); transition: 0.4s; }
-        .workflow-step-item:hover { border-color: var(--global-accent-primary); background: linear-gradient(90deg, rgba(225,29,72,0.05), transparent); }
-        .workflow-step-number { font-family: 'Oswald'; font-size: 50px; color: var(--global-background-base); -webkit-text-stroke: 1px rgba(255,255,255,0.3); position: absolute; top: -25px; left: 15px; opacity: 0.4; z-index: 1; }
-        .workflow-step-item h3 { font-size: 20px; margin-bottom: 15px; position: relative; z-index: 2; font-family: 'Oswald'; letter-spacing: 0.5px; }
-        .workflow-step-item p { font-size: 15px; color: var(--global-text-medium-contrast); line-height: 1.6; position: relative; z-index: 2; font-weight: 300; }
+        .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+        .testi-card { background: #111; padding: 30px; border-radius: 12px; border: 1px solid var(--border); transition: 0.3s; }
+        .testi-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .t-head { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .t-av { width: 45px; height: 45px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .t-badge { font-size: 10px; font-family: var(--font-tech); color: var(--accent); border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
 
-        /* --- TESTIMONIALS --- */
-        .testimonials-section-wrapper { padding: 120px 0; }
-        .testimonials-grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-        .testimonial-card-item {
-            background: #111; border: 1px solid var(--global-border-light); 
-            border-radius: var(--global-border-radius-large); padding: 40px;
-            position: relative; transition: 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        .testimonial-card-item:hover { 
-            border-color: var(--global-accent-primary); 
-            transform: translateY(-5px); 
-            box-shadow: 0 10px 40px -10px rgba(225, 29, 72, 0.15);
-        }
-        .testimonial-header-info { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
-        .testimonial-avatar-circle { width: 50px; height: 50px; background: #222; border-radius: 50%; overflow: hidden; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .testimonial-user-details h4 { font-family: 'Oswald'; font-size: 18px; margin-bottom: 4px; letter-spacing: 0.5px; }
-        .testimonial-user-details span { font-size: 11px; color: var(--global-accent-primary); font-family: 'JetBrains Mono'; background: rgba(225,29,72,0.1); padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(225, 29, 72, 0.2); }
-        .testimonial-content-text { font-size: 15px; color: var(--global-text-medium-contrast); line-height: 1.7; font-style: italic; font-weight: 300; }
-        .testimonial-quote-icon { position: absolute; top: 25px; right: 30px; font-size: 50px; color: var(--global-border-color); font-family: serif; opacity: 0.5; }
+        footer { padding: 100px 0 60px; border-top: 1px solid var(--border); background: var(--bg-deep); position: relative; z-index: 5; }
+        .footer-content { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; margin-bottom: 60px; }
+        
+        .footer-brand h2 { font-family: var(--font-head); font-size: 60px; line-height: 1; color: #fff; margin-bottom: 10px; }
+        .footer-brand h2 span { color: var(--accent); }
+        .footer-tagline { font-family: var(--font-tech); color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+        
+        .footer-links { display: flex; gap: 40px; justify-content: flex-end; }
+        .f-link { font-family: var(--font-head); font-size: 18px; color: #fff; text-transform: uppercase; transition: 0.3s; cursor: pointer; }
+        .f-link:hover { color: var(--accent); }
+        
+        .footer-bottom { border-top: 1px solid var(--border); padding-top: 30px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-tech); font-size: 12px; color: var(--text-muted); }
 
-        /* --- ECOSYSTEM SECTION --- */
-        .ecosystem-support-wrapper { padding: 60px 0 100px; border-bottom: 1px solid var(--global-border-light); }
-        .ecosystem-header-small { font-family: 'JetBrains Mono'; font-size: 12px; text-align: center; color: var(--global-text-medium-contrast); margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
-        .ecosystem-icons-grid { display: flex; justify-content: center; align-items: center; gap: 50px; flex-wrap: wrap; opacity: 0.6; }
-        .ecosystem-icon-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .ecosystem-icon-item svg { width: 32px; fill: var(--global-text-high-contrast); }
-        .ecosystem-icon-item span { font-family: 'Oswald'; font-size: 12px; color: var(--global-text-medium-contrast); letter-spacing: 1px; }
-
-        /* --- WHY US PREMIUM UPGRADE --- */
-        .why-us-section-wrapper { padding: 120px 0; background: linear-gradient(180deg, var(--global-background-base) 0%, #080808 100%); }
-        .why-us-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
-        .why-us-visual-block { 
-            background: linear-gradient(135deg, var(--global-background-card), var(--global-background-surface));
-            border: 1px solid var(--global-border-light); border-radius: 20px; height: 450px; 
-            display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; 
-            color: var(--global-text-low-contrast); font-size: 13px; position: relative; overflow: hidden;
-            box-shadow: 0 30px 60px -30px rgba(0,0,0,0.8);
-        }
-        .why-us-visual-block::after { content: '</>'; font-size: 200px; opacity: 0.02; position: absolute; transform: rotate(-15deg); bottom: -50px; right: -50px; color: var(--global-accent-primary); }
-        .why-us-visual-code-container {
-            text-align:left; line-height:1.6; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(5px);
-        }
-        .why-us-features-grid-premium { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 30px; }
-        .why-us-premium-item { display: flex; align-items: flex-start; gap: 15px; }
-        .why-us-icon-box {
-            width: 45px; height: 45px; background: rgba(225, 29, 72, 0.1); border: 1px solid rgba(225, 29, 72, 0.2);
-            border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.3s;
-        }
-        .why-us-premium-item:hover .why-us-icon-box { background: var(--global-accent-primary); box-shadow: 0 0 15px var(--global-accent-glow); }
-        .why-us-premium-item:hover .why-us-icon-box svg { fill: white; }
-        .why-us-icon-box svg { width: 22px; fill: var(--global-accent-primary); transition: 0.3s; }
-        .why-us-text-content strong { display: block; font-family: 'Oswald'; font-size: 17px; color: var(--global-text-high-contrast); margin-bottom: 6px; letter-spacing: 0.5px; }
-        .why-us-text-content p { font-size: 14px; color: var(--global-text-medium-contrast); line-height: 1.5; font-weight: 300; }
-
-        footer { padding: 50px 0; border-top: 1px solid var(--global-border-light); text-align: center; font-size: 13px; color: var(--global-text-medium-contrast); background: var(--global-background-surface); font-family: 'JetBrains Mono'; }
-
-        /* --- RESPONSIVE MOBILE FIXES --- */
         @media (max-width: 1024px) {
-            .bento-grid-layout { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
-            .bento-card-span-large, .bento-card-span-wide { grid-column: span 2; }
-            .why-us-grid-layout { gap: 60px; }
+            .cyber-accordion { flex-direction: column; height: auto; }
+            .acc-item { min-height: 100px; flex: none; width: 100%; }
+            .acc-item:hover, .acc-item.active { flex: none; height: 300px; }
+            .acc-item:not(:hover):not(.active) .acc-head { writing-mode: horizontal-tb; transform: none; position: static; margin-bottom: 10px; }
+            .acc-item:not(:hover):not(.active) .acc-num { position: static; transform: none; }
+            .acc-code { display: none; }
+            .acc-desc { position: static; transform: none; opacity: 1; max-width: 100%; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .footer-links { justify-content: center; }
         }
-
         @media (max-width: 768px) {
-            h1 { font-size: 3rem; }
-            /* Mobile Bento Fix: 1 Kolom & Auto Height biar teks gak kepotong */
-            .bento-grid-layout { grid-template-columns: 1fr; grid-template-rows: auto; gap: 20px; }
-            .bento-grid-card-item { min-height: 250px; padding: 30px; }
-            .bento-card-span-large, .bento-card-span-wide { grid-column: span 1; }
+            h1 { font-size: 3.5rem; }
+            .platform-wrapper, .steps-grid, .testi-grid, .sys-grid { grid-template-columns: 1fr; }
+            .cursor-dot, .cursor-circle { display: none; }
+            .footer-brand h2 { font-size: 40px; }
             
-            /* Workflow & Why Us Stack */
-            .workflow-steps-grid, .why-us-grid-layout, .why-us-features-grid-premium { grid-template-columns: 1fr; gap: 40px; }
-            
-            .hero-section-wrapper { padding: 80px 0 60px; }
-            .luxury-marquee-item { font-size: 24px; margin: 0 20px; }
-            .why-us-visual-block { height: 280px; }
-            .platform-selector-grid { grid-template-columns: 1fr; }
+            .timeline-wrapper { flex-direction: column; gap: 40px; margin-top: 40px; }
+            .timeline-line, .timeline-line-active { display: none; }
+            .timeline-step { width: 100%; opacity: 1; transform: none; display: flex; text-align: left; gap: 20px; align-items: center; }
+            .tl-node { margin: 0; flex-shrink: 0; }
         }
-
-        @keyframes AnimationFadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .animation-trigger-fade { animation: AnimationFadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
-        .animation-delay-100 { animation-delay: 0.1s; }
-        .animation-delay-200 { animation-delay: 0.2s; }
-        .animation-delay-300 { animation-delay: 0.3s; }
+        
+        .gsap-reveal { opacity: 0; transform: translateY(30px); } 
     </style>
 </head>
 <body>
 
-    <div class="application-initialization-overlay" id="ApplicationInitializationOverlayLayer">
-        <div class="initialization-content-wrapper">
-            <div class="initialization-percentage-display" id="InitializationPercentageNumericDisplay">0%</div>
-            <div class="initialization-status-text">Loading SSRP HELPER...</div>
-            <div class="initialization-progress-track">
-                <div class="initialization-progress-fill" id="InitializationProgressBarIndicator"></div>
-            </div>
-        </div>
+    <div class="bg-grid"></div>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-circle"></div>
+    <div class="cursor-tooltip" id="tooltip"></div>
+
+    <div class="loader-overlay" id="loader">
+        <div class="loader-text font-oswald" id="loadPerc">0%</div>
+        <div style="font-family:var(--font-tech); color:var(--text-muted); letter-spacing:2px; margin-bottom:10px;">BOOTING SYSTEM...</div>
+        <div class="loader-bar"><div class="loader-fill" id="loadBar"></div></div>
     </div>
 
-    <div class="pre-flight-check-overlay-layer" id="PreFlightCheckOverlayLayer">
-        <div class="pre-flight-spinner"></div>
-        <div class="pre-flight-status-text" id="PreFlightStatusText">CEK KONDISI LINGKUNGAN...</div>
+    <div class="layer-preflight" id="preflight">
+        <div class="spinner"></div>
+        <div class="font-mono" style="color:#aaa; letter-spacing:2px;" id="preflightTxt">CHECKING...</div>
+    </div>
+    <div class="layer-terminal" id="terminal">
+        <div id="termOut"></div>
     </div>
 
-    <div class="cybernetic-terminal-overlay-layer" id="CyberneticTerminalOverlayLayer">
-        <div id="TerminalLogOutputContainer"></div>
-        <div class="terminal-active-cursor-indicator"></div>
-    </div>
-
-    <section class="hero-section-wrapper">
-        <div class="main-layout-container text-alignment-center">
-            <div class="brand-identity-logo animation-trigger-fade">SSRP <span class="text-highlight-crimson">HELPER</span></div>
-            <div class="typography-monospace mb-20 animation-trigger-fade animation-delay-100" style="font-size:11px; color:var(--global-text-medium-contrast); letter-spacing:1px;">
-                  TOOLS Buat yang malas ngedit SSRP  ||  VERSI 1.0.0 BETA RELEASE
-            </div>
-
-            <h1 class="animation-trigger-fade animation-delay-100">
-                Edit SS Roleplay<br>
-                <span class="text-highlight-crimson">Sat-Set Tanpa Ribet</span>
+    <section class="hero">
+        <div class="hero-glow-center"></div>
+        <div class="container text-center">
+            <div class="brand-tag gsap-reveal">SSRPHELPER V1.4.0</div>
+            
+            <h1 class="gsap-reveal">
+                EDIT SSRP<br>
+                <span class="text-crimson">SAT-SET TANPA RIBET</span>
             </h1>
             
-            <p class="hero-subtitle-text animation-trigger-fade animation-delay-200">
-                Tools andalan buat lu yang pengen hasil edit  SSRP <i>KEREN </i>  tanpa perlu buka Photoshop berat. 
-                Upload, paste chatlog, kelar. Sekali klik langsung jadi anak rp eliterss.
-            </p>
+            <p class="hero-sub gsap-reveal">
+                Tools andalan buat lu yang pengen hasil edit SSRP KEREN tanpa perlu buka Photoshop berat. Upload, paste chatlog, kelar. Sekali klik langsung jadi anak rp eliterss.
+              </p>
 
-            <div class="platform-selector-grid animation-trigger-fade animation-delay-300" id="PlatformSelectionCardContainer">
-                <div class="platform-selection-card" onclick="InitiateDoubleLayerBootSequence('index.html', 'PC/DESKTOP STATION')">
-                    <div class="platform-icon-wrapper">
-                        <svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
-                    </div>
-                    <h2>Versi PC / Laptop</h2>
-                    <p>Fitur full power. Drag & drop banyak gambar, atur layout bebas, preview real-time buat yang perfeksionis.</p>
-                    <button class="interactive-launch-button">
-                        GAS VERSI PC
-                        <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+            <div class="platform-wrapper gsap-reveal">
+                <div class="plat-card" data-tooltip="MODE: PRO EDITOR">
+                    <div class="plat-icon"><svg viewBox="0 0 24 24"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg></div>
+                    <h3>Desktop PC</h3>
+                    <p>Mode Full Power. Multi-layer, control penuh, preview real-time buat yang perfeksionis.</p>
+                    <button class="btn-action" onclick="runBoot('index.html', 'PC_WORKSTATION')">
+                        GAS KE DESKTOP
+                        <svg style="width:16px; fill:currentColor" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
                     </button>
                 </div>
-
-                <div class="platform-selection-card" onclick="InitiateDoubleLayerBootSequence('android_v.html', 'ANDROID SYSTEM')">
-                    <div class="platform-icon-wrapper">
-                        <svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-                    </div>
-                    <h2>Versi HP / Android</h2>
-                    <p>UI simpel khusus layar sentuh. Edit SS sambil rebahan, ringan dan gak bikin HP kentang ngeleg.</p>
-                    <button class="interactive-launch-button">
-                        GAS VERSI HP
-                        <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                <div class="plat-card" data-tooltip="MODE: LITE TOUCH">
+                    <div class="plat-icon"><svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg></div>
+                    <h3>Mobile / HP</h3>
+                    <p>Mode Ringan. UI khusus layar sentuh. Ngedit sambil rebahan, HP kentang aman.</p>
+                    <button class="btn-action" onclick="runBoot('android_v.html', 'MOBILE_DEVICE')">
+                        GAS KE ANDROID
+                        <svg style="width:16px; fill:currentColor" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="luxury-marquee-wrapper">
-        <div class="luxury-marquee-track">
-            <div class="luxury-marquee-item">TOOLS SSRP KEREN ABIZZ <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">NO WATERMARK <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">EXPORT JERNIH <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">WARNA OTOMATIS <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">ANTI LEMOT BRO <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">TINGGAL DRAG & DROP <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">TOOLS SSRP KELAZZ <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">NO WATERMARK <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">EXPORT JERNIH <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">WARNA OTOMATIS <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">ANTI LEMOT <span class="marquee-separator"></span></div>
-            <div class="luxury-marquee-item">TINGGAL DRAG & DROP <span class="marquee-separator"></span></div>
+    <div class="marquee-strip">
+        <div class="marquee-content">
+            <span class="marquee-txt">ELITE ROLEPLAY TOOL <span>|</span></span>
+            <span class="marquee-txt">NO WATERMARK <span>|</span></span>
+            <span class="marquee-txt">AUTO COLOR DETECT <span>|</span></span>
+            <span class="marquee-txt">FAST RENDER <span>|</span></span>
+            <span class="marquee-txt">ELITE ROLEPLAY TOOL <span>|</span></span>
+            <span class="marquee-txt">NO WATERMARK <span>|</span></span>
+            <span class="marquee-txt">AUTO COLOR DETECT <span>|</span></span>
+            <span class="marquee-txt">FAST RENDER <span>|</span></span>
         </div>
     </div>
 
-    <section class="bento-grid-section-wrapper">
-        <div class="main-layout-container">
-            <div class="bento-grid-header text-alignment-center">
-                <h2>Fitur <span class="text-highlight-crimson">KEREN ABIZ</span></h2>
-                <p style="color:var(--global-text-medium-contrast); margin-top:15px; font-size: 1.1rem;">Biar RP Lu makin gacor kita kasih fitur fitur menarik Boy</p>
+    <section class="features-sec container gsap-reveal-scroll">
+        <h2 class="section-title">FITUR <span class="text-crimson">GACOR</span></h2>
+        
+        <div class="sys-grid">
+            <div class="sys-card" data-tooltip="SYS: LSRP+">
+                <div class="sys-header">
+                    <svg class="sys-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    <span class="sys-title">Multi-Zone Chatlog System</span>
+                </div>
+                <div class="sys-desc">sudah support berbagai lokasi untuk masukin chatlog dan kamu bsia sesukaa kamu masukin dimana sajaa</div>
             </div>
+
+            <div class="sys-card" data-tooltip="SYS: AUTO">
+                <div class="sys-header">
+                    <svg class="sys-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    <span class="sys-title">AUTO DETECT</span>
+                </div>
+                <div class="sys-desc">Intelligent Parser yang membaca /me, /do, dan radio chat secara otomatis. Cukup paste, warna langsung jadi.</div>
+            </div>
+
+            <div class="sys-card" data-tooltip="SYS: CLEAN">
+                <div class="sys-header">
+                    <svg class="sys-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <span class="sys-title">CLEANER</span>
+                </div>
+                <div class="sys-desc">Fitur Auto-Cleaner akan menghapus timestamp [HH:MM:SS] yang mengganggu secara instan.</div>
+            </div>
+
+            <div class="sys-card" data-tooltip="SYS: SAFE">
+                <div class="sys-header">
+                    <svg class="sys-icon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                    <span class="sys-title">PRIVACY SHIELD</span>
+                </div>
+                <div class="sys-desc">Client-side only. Gambar Anda tidak pernah meninggalkan perangkat Anda. 100% Aman dan Privat.</div>
+            </div>
+
+            <div class="sys-card" data-tooltip="SYS: 4K">
+                <div class="sys-header">
+                    <svg class="sys-icon" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                    <span class="sys-title">PIXEL PERFECT</span>
+                </div>
+                <div class="sys-desc">Rendering Canvas High Definition. Text tidak akan pecah (blur) meskipun di-zoom di forum.</div>
+            </div>
+
+            <div class="sys-card" data-tooltip="SYS: DRAG">
+                <div class="sys-header">
+                    <svg class="sys-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
+                    <span class="sys-title">BULK EDIT</span>
+                </div>
+                <div class="sys-desc">Drag & Drop 20 gambar sekaligus? Bisa. Hemat waktu editing, lebih banyak waktu roleplay.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="why-section container gsap-reveal-scroll" id="accordionSection">
+        <h2 class="section-title">KENAPA HARUS SSRP<span class="text-crimson">HELPER?</span></h2>
+        
+        <div class="cyber-accordion">
+            <div class="acc-item active" data-tooltip="FEATURE: AUTO">
+                <div class="acc-bg-icon">01</div>
+                <div class="acc-content">
+                    <span class="acc-num">01 | INTELLIGENCE</span>
+                    <h3 class="acc-head">AUTO COLOR</h3>
+                    <p class="acc-desc">Gak perlu ngafalin kode hex. Sistem otomatis mendeteksi /me, /do, /low dan radio chat. Cukup paste chatlog, sistem yang kerja.</p>
+                </div>
+                <div class="acc-code">
+                    <div style="color:#e11d48">{FF0000}* Andi reaches for radio</div>
+                    <div style="color:#a855f7">{Do} A radio is visible</div>
+                    <div style="color:#00ff41">Status: DETECTED</div>
+                </div>
+            </div>
+
+            <div class="acc-item" data-tooltip="FEATURE: SECURITY">
+                <div class="acc-bg-icon">02</div>
+                <div class="acc-content">
+                    <span class="acc-num">02 | SECURITY</span>
+                    <h3 class="acc-head">PRIVACY AMAN</h3>
+                    <p class="acc-desc">Proses client-side sepenuhnya. Screenshot lu gak pernah di-upload ke server manapun. 100% aman di device lu sendiri.</p>
+                </div>
+                <div class="acc-code">
+                    <div>SERVER_UPLOAD: <span style="color:#e11d48">FALSE</span></div>
+                    <div>LOCAL_PROCESS: <span style="color:#00ff41">TRUE</span></div>
+                    <div>ENCRYPTION: AES-256</div>
+                </div>
+            </div>
+
+            <div class="acc-item" data-tooltip="FEATURE: SPEED">
+                <div class="acc-bg-icon">03</div>
+                <div class="acc-content">
+                    <span class="acc-num">03 | PERFORMANCE</span>
+                    <h3 class="acc-head">ANTI LEMOT</h3>
+                    <p class="acc-desc">Dibangun dengan Vanilla JS tanpa framework berat. Jalan mulus di laptop kentang atau HP RAM 2GB sekalipun.</p>
+                </div>
+                <div class="acc-code">
+                    <div>FPS: 60</div>
+                    <div>RENDER_TIME: 12ms</div>
+                    <div>MEMORY: LOW</div>
+                </div>
+            </div>
+
+            <div class="acc-item" data-tooltip="FEATURE: HD">
+                <div class="acc-bg-icon">04</div>
+                <div class="acc-content">
+                    <span class="acc-num">04 | QUALITY</span>
+                    <h3 class="acc-head">HD EXPORT</h3>
+                    <p class="acc-desc">Hasil render tajam (Pixel Perfect). Font tidak pecah saat di-zoom di forum. Standar High Quality Roleplay.</p>
+                </div>
+                 <div class="acc-code">
+                    <div>OUTPUT: PNG</div>
+                    <div>QUALITY: 100%</div>
+                    <div>ANTI_ALIAS: ON</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="workflow-sec gsap-reveal-scroll">
+        <div class="container">
+            <h2 class="section-title">WORKFLOW <span class="text-crimson">SAT-SET</span></h2>
             
-            <div class="bento-grid-layout" id="BentoGridContainer">
-                <div class="bento-grid-card-item bento-card-span-large">
-                    <div class="bento-icon-container">
-                        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
-                    </div>
-                    <div class="bento-card-title">Deteksi Warna Cerdas OTOMATIS</div>
-                    <div class="bento-card-description">Gak usah pusing ngetik kode warna. Sistem otomatis kasih template mana /me, /do, atau chat biasa yang bisa di Custom cuy</div>
-                    <div class="code-snippet-visual-element">
-                        <span class="code-line-element" style="color:#e11d48">{FF0000}* Andi slowly reaches for his radio</span>
-<span class="code-line-element" style="color:#22c55e">{00FF00}* Raka tightens his grip on the handgun</span>
-
-<span class="code-line-element" style="color:#38bdf8">{33CCFF}* Dimas scans the alleyway cautiously</span>
-<span class="code-line-element" style="color:#f97316">{FFA500}* Rio steps back while keeping his weapon raised</span>
-
-<span class="code-line-element" style="color:#a855f7">{AA00FF}* Fajar adjusts his stance behind the patrol car</span>
-<span class="code-line-element" style="color:#84cc16">{99FF00}* Yoga peeks out briefly from cover</span>
-
-<span class="code-line-element" style="color:#ef4444">{FF4444}* Bayu unholsters his firearm carefully</span>
-<span class="code-line-element" style="color:#06b6d4">{00FFFF}* Nando aims the gun toward the suspect</span>
-
-<span class="code-line-element" style="color:#facc15">{FFFF00}* Ilham raises his voice issuing clear commands</span>
-<span class="code-line-element" style="color:#64748b">{999999}* Ardi keeps his finger off the trigger</span>
-
-<span class="code-line-element" style="color:#ec4899">{FF66CC}* Kevin moves sideways maintaining distance</span>
-<span class="code-line-element" style="color:#14b8a6">{00FFCC}* Rendy signals his partner to flank right</span>
-
-<span class="code-line-element" style="color:#fb7185">{FF9999}* Akbar lowers his weapon after compliance</span>
-<span class="code-line-element" style="color:#c084fc">{CC99FF}* Farhan carefully holsters his sidearm</span>
-
-<span class="code-line-element" style="color:#4ade80">{66FF99}* Jaka exhales slowly to steady himself</span>
-<span class="code-line-element" style="color:#60a5fa">{6699FF}* Reza reaches for his handcuffs</span>
-
-<span class="code-line-element" style="color:#f87171">{FF7777}* Aldi kneels down to secure the suspect</span>
-<span class="code-line-element" style="color:#34d399">{33FF99}* Wahyu checks the surroundings one last time</span>
-<span class="code-line-element" style="color:#33CCFF">{FF0000}* Bambang Save back his gun</span>
+            <div class="timeline-wrapper">
+                <div class="timeline-line"></div>
+                <div class="timeline-line-active"></div>
+                
+                <div class="timeline-step">
+                    <div class="tl-node">01</div>
+                    <div class="tl-content">
+                        <h3>MASUKIN GAMBAR</h3>
+                        <p>Drag & drop screenshot lu dari folder GTA. Bisa langsung banyak, gak usah satu-satu.</p>
                     </div>
                 </div>
                 
-                <div class="bento-grid-card-item">
-                    <div class="bento-icon-container">
-                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                <div class="timeline-step">
+                    <div class="tl-node">02</div>
+                    <div class="tl-content">
+                        <h3>TEMPEL CHATLOG</h3>
+                        <p>Copy chatlog, paste di sini. Sistem otomatis bersihin timestamp & kasih warna roleplay.</p>
                     </div>
-                    <div class="bento-card-title">Privasi Lu Aman</div>
-                    <div class="bento-card-description">Semua proses cuma di browser lu. Foto gak dikirim ke server kita.</div>
                 </div>
                 
-                <div class="bento-grid-card-item">
-                    <div class="bento-icon-container">
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                <div class="timeline-step">
+                    <div class="tl-node">03</div>
+                    <div class="tl-content">
+                        <h3>SEDOT HASILNYA</h3>
+                        <p>Download PNG HD atau upload langsung. Siap pamer di thread faction.</p>
                     </div>
-                    <div class="bento-card-title">Ngebut Tanpa Lag</div>
-                    <div class="bento-card-description">Ringan banget,HP kentang RAM 2GB juga bisa ngedit sambil rebahan[emot ketawa].</div>
-                </div>
-
-                <div class="bento-grid-card-item bento-card-span-wide">
-                    <div class="bento-icon-container">
-                        <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-                    </div>
-                    <div class="bento-card-title">Export Bening Bet</div>
-                    <div class="bento-card-description">Hasil download tajem, gak burik pas di-zoom. Cocok buat pamer di thread faction biar dilirik High Command.</div>
-                </div>
-
-                <div class="bento-grid-card-item">
-                    <div class="bento-icon-container">
-                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
-                    </div>
-                    <div class="bento-card-title">Edit Borongan</div>
-                    <div class="bento-card-description">Drag & drop 20 screenshot sekaligus? Gas. Hemat waktu banget.</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="workflow-section-wrapper">
-        <div class="main-layout-container">
-            <h2 class="section-header-title">Workflow <span class="text-highlight-crimson">Sat-Set</span></h2>
-            <div class="workflow-steps-grid">
-                <div class="workflow-step-item">
-                    <div class="workflow-step-number">01</div>
-                    <h3>Masukin Gambar</h3>
-                    <p>Tinggal drag & drop screenshot lu dari folder GTA. Bisa langsung banyak, gak usah satu-satu.</p>
+    <section class="container gsap-reveal-scroll" style="padding:100px 24px;">
+        <h2 class="section-title">KATA <span class="text-crimson">MEREKA</span></h2>
+        <div class="testi-grid">
+            <div class="testi-card">
+                <div class="t-head">
+                    <div class="t-av" style="background:linear-gradient(135deg, #e11d48, #881337)">A</div>
+                    <div>
+                        <h4 style="font-family:var(--font-head)">Agus_Knalpot</h4>
+                        <span class="t-badge">FnG</span>
+                    </div>
                 </div>
-                <div class="workflow-step-item">
-                    <div class="workflow-step-number">02</div>
-                    <h3>Tempel Chatlog</h3>
-                    <p>Copy chatlog lu, paste di sini. Sistem bakal otomatis bersihin timestamp dan kasih warna sesuai roleplay.</p>
-                </div>
-                <div class="workflow-step-item">
-                    <div class="workflow-step-number">03</div>
-                    <h3>Sedot Hasilnya</h3>
-                    <p>Tinggal download PNG HD atau langsung upload ke Imgur buat dipajang di forum.</p>
-                </div>
+                <p style="color:#aaa; font-style:italic; font-size:14px;">"Gila sih, biasanya ngedit ssrp 30 menit di PS, pake ini cuma 2 menit kelar semua scene."</p>
             </div>
-        </div>
-    </section>
-
-    <section class="testimonials-section-wrapper">
-        <div class="main-layout-container">
-            <h2 class="section-header-title">Kata <span class="text-highlight-crimson">Mereka</span></h2>
-            <div class="testimonials-grid-layout">
-                <div class="testimonial-card-item">
-                    <div class="testimonial-quote-icon">"</div>
-                    <div class="testimonial-header-info">
-                        <div class="testimonial-avatar-circle" style="background:linear-gradient(135deg, #e11d48, #ff477e)">A</div>
-                        <div class="testimonial-user-details">
-                            <h4>Agus_Knalpot</h4>
-                            <span>VERIFIED LSPD</span>
-                        </div>
+            <div class="testi-card">
+                <div class="t-head">
+                    <div class="t-av" style="background:linear-gradient(135deg, #2563eb, #1e3a8a)">S</div>
+                    <div>
+                        <h4 style="font-family:var(--font-head)">Siti_Racing</h4>
+                        <span class="t-badge">FnG</span>
                     </div>
-                    <p class="testimonial-content-text">"Gila sih, biasanya ngedit laporan faksi 30 menit di PS, pake ini cuma 2 menit kelar semua scene. Sisa waktunya bisa buat patroli lagi. Mantap jiwa!"</p>
                 </div>
-                <div class="testimonial-card-item">
-                    <div class="testimonial-quote-icon">"</div>
-                    <div class="testimonial-header-info">
-                        <div class="testimonial-avatar-circle" style="background:linear-gradient(135deg, #3b82f6, #60a5fa)">S</div>
-                        <div class="testimonial-user-details">
-                            <h4>Siti_Racing</h4>
-                            <span>OFFICIAL GANG</span>
-                        </div>
-                    </div>
-                    <p class="testimonial-content-text">"Fitur mobile-nya ngebantu banget pas lagi gak buka PC. UI-nya enak, tombolnya gede, gak ribet. Hasilnya tetap tajem buat dipajang di thread family."</p>
-                </div>
-                <div class="testimonial-card-item">
-                    <div class="testimonial-quote-icon">"</div>
-                    <div class="testimonial-header-info">
-                        <div class="testimonial-avatar-circle" style="background:linear-gradient(135deg, #10b981, #34d399)">U</div>
-                        <div class="testimonial-user-details">
-                            <h4>Udin_Racing</h4>
-                            <span>WARGA SIPIL</span>
-                        </div>
-                    </div>
-                    <p class="testimonial-content-text">"Warnanya akurat cuy. Gw gak perlu lagi ngapal kode warna hex aneh-aneh. Tinggal copas chatlog, lsg jadi rapi. Sangat worth it."</p>
-                </div>
+                <p style="color:#aaa; font-style:italic; font-size:14px;">"Fitur mobile-nya ngebantu banget pas lagi gak buka PC. UI-nya enak, tombolnya gede."</p>
             </div>
-        </div>
-    </section>
-
-    <div class="ecosystem-support-wrapper">
-        <div class="main-layout-container">
-            <div class="ecosystem-header-small">SUPPORT SEMUA JENIS ROLEPLAY</div>
-            <div class="ecosystem-icons-grid">
-                <div class="ecosystem-icon-item">
-                    <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-                    <span>PEMERINTAH / SAPD</span>
-                </div>
-                <div class="ecosystem-icon-item">
-                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                    <span>GENG / FAKSI</span>
-                </div>
-                <div class="ecosystem-icon-item">
-                    <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h18c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
-                    <span>WARGA BIASA</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <section class="why-us-section-wrapper">
-        <div class="main-layout-container">
-            <div class="why-us-grid-layout">
-                <div class="why-us-visual-block">
-                    <div class="why-us-visual-code-container">
-                        <span style="color:#e11d48">class</span> SSRPEngine {<br>
-                        &nbsp;&nbsp;<span style="color:#e11d48">constructor</span>() {<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a1a1aa">this</span>.latency = 0;<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a1a1aa">this</span>.privacy = <span style="color:#33CCFF">true</span>;<br>
-                        &nbsp;&nbsp;}<br>
-                        &nbsp;&nbsp;<span style="color:#e11d48">function</span> renderHighFidelity() {<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#52525b">// Native browser Canvas API</span><br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a1a1aa">return</span> HIGH_PERFORMANCE;<br>
-                        &nbsp;&nbsp;}<br>
-                        }
+            <div class="testi-card">
+                <div class="t-head">
+                    <div class="t-av" style="background:linear-gradient(135deg, #10b981, #064e3b)">U</div>
+                    <div>
+                        <h4 style="font-family:var(--font-head)">Udin_Jago</h4>
+                        <span class="t-badge">FnG</span>
                     </div>
                 </div>
-                <div class="why-us-content-block">
-                    <h3 style="font-family:'Oswald'; font-size:32px; margin-bottom:40px; letter-spacing:1px;">Kenapa Harus <span class="text-highlight-crimson">SSRP HELPER?</span></h3>
-                    <div class="why-us-features-grid-premium">
-                        
-                        <div class="why-us-premium-item">
-                            <div class="why-us-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                            </div>
-                            <div class="why-us-text-content">
-                                <strong>Performa Asli Browser</strong>
-                                <p>Jalan langsung di browser tanpa install aplikasi berat.</p>
-                            </div>
-                        </div>
-
-                        <div class="why-us-premium-item">
-                            <div class="why-us-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3 3.1-3 1.71 0 3.1 1.29 3.1 3v2z"/></svg>
-                            </div>
-                            <div class="why-us-text-content">
-                                <strong>Privasi Total</strong>
-                                <p>Gak ada upload ke server. Data lu aman di perangkat lu sendiri.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="why-us-premium-item">
-                            <div class="why-us-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                            </div>
-                            <div class="why-us-text-content">
-                                <strong>Standar Anak SAMP</strong>
-                                <p>Support penuh kode warna dan format yang dipake komunitas.</p>
-                            </div>
-                        </div>
-
-                        <div class="why-us-premium-item">
-                            <div class="why-us-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-                            </div>
-                            <div class="why-us-text-content">
-                                <strong>Hasil Tajam</strong>
-                                <p>Teks gak bakal pecah. Tetep kebaca jelas walau di-zoom.</p>
-                            </div>
-                        </div>
-                         <div class="why-us-premium-item">
-                            <div class="why-us-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-                            </div>
-                            <div class="why-us-text-content">
-                                <strong>Bisa PC & HP</strong>
-                                <p>Mau ngedit di laptop atau sambil rebahan di HP, gas terus.</p>
-                            </div>
-                        </div>
-                         <div class="why-us-premium-item">
-                            <div class="why-us-icon-box">
-                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                            </div>
-                            <div class="why-us-text-content">
-                                <strong>Hemat Waktu</strong>
-                                <p>Kerjaan sejam jadi cuma 5 menit. Sisa waktunya bisa buat RP lagi.</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                <p style="color:#aaa; font-style:italic; font-size:14px;">"Warnanya akurat. Gw gak perlu lagi ngapal kode warna hex aneh-aneh. Tinggal copas chatlog."</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <div class="main-layout-container">
-            <div class="brand-identity-logo" style="margin-bottom:20px; font-size:20px;">SSRP <span class="text-highlight-crimson">HELPER</span></div>
-            <p>&copy; 2025 PuddingMilki Development. Hak Cipta Dilindungi.</p>
-            <p style="margin-top:10px; color:#52525b; font-size:11px;">SSRP HELPER V1.0.0 RELEASE BETA || DIBUAT KHUSUS UNTUK ROLEPLAYERS SEJATI</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h2>SSRP<span>HELPER</span></h2>
+                    <p class="footer-tagline">SSRPHELPER V1.4.0 RELEASE</p>
+                </div>
+                <div class="footer-links">
+                    <div class="f-link">GUIDE</div>
+                    <div class="f-link">PRIVACY</div>
+                    <div class="f-link">SUPPORT</div>
+                    <div class="f-link" onclick="window.open('https://..io/', '_blank')">PUDDINGMILKI</div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>&copy; 2025 PUDDINGMILKI </div>
+                <div>DIBUAT UNTUK ROLEPLAYER SEJATI</div>
+            </div>
         </div>
     </footer>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const ApplicationInitializationOverlayLayer = document.getElementById('ApplicationInitializationOverlayLayer');
-            const InitializationProgressBarIndicator = document.getElementById('InitializationProgressBarIndicator');
-            const InitializationPercentageNumericDisplay = document.getElementById('InitializationPercentageNumericDisplay');
-            let ApplicationLoadingProgressValue = 0;
+        const loader = document.getElementById('loader');
+        const loadBar = document.getElementById('loadBar');
+        const loadTxt = document.getElementById('loadPerc');
+        let progress = 0;
 
-            const ApplicationLoadingSequenceInterval = setInterval(() => {
-                if (ApplicationLoadingProgressValue >= 100) {
-                    clearInterval(ApplicationLoadingSequenceInterval);
-                    ApplicationInitializationOverlayLayer.style.opacity = '0';
-                    ApplicationInitializationOverlayLayer.style.visibility = 'hidden';
-                } else {
-                    ApplicationLoadingProgressValue += Math.floor(Math.random() * 5) + 1; 
-                    if(ApplicationLoadingProgressValue > 100) ApplicationLoadingProgressValue = 100;
-                    InitializationProgressBarIndicator.style.width = ApplicationLoadingProgressValue + '%';
-                    InitializationPercentageNumericDisplay.innerText = ApplicationLoadingProgressValue + '%';
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 5) + 2;
+            if(progress > 100) progress = 100;
+            loadBar.style.width = progress + '%';
+            loadTxt.innerText = progress + '%';
+            if(progress === 100) {
+                clearInterval(interval);
+                gsap.to(loader, { 
+                    yPercent: -100, 
+                    duration: 1, 
+                    ease: "expo.inOut", 
+                    onComplete: initSite 
+                });
+            }
+        }, 30);
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        function initSite() {
+            gsap.fromTo(".gsap-reveal", 
+                { y: 50, opacity: 0 }, 
+                { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power3.out" }
+            );
+
+            gsap.utils.toArray('.gsap-reveal-scroll').forEach(section => {
+                gsap.fromTo(section, 
+                    { y: 50, opacity: 0 },
+                    {
+                        scrollTrigger: { trigger: section, start: "top 85%" },
+                        y: 0, opacity: 1, duration: 1, ease: "power2.out"
+                    }
+                );
+            });
+            
+            gsap.fromTo(".sys-card", 
+                { y: 30, opacity: 0 },
+                {
+                    scrollTrigger: { trigger: ".features-sec", start: "top 80%" },
+                    y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "back.out(1.7)"
                 }
-            }, 30);
+            );
+
+            gsap.to(".timeline-line-active", {
+                width: "100%",
+                scrollTrigger: { trigger: ".workflow-sec", start: "top 60%", end: "bottom 80%", scrub: 1 }
+            });
+            gsap.to(".timeline-step", {
+                y: 0, opacity: 1, stagger: 0.3,
+                scrollTrigger: { trigger: ".workflow-sec", start: "top 60%" }
+            });
+        }
+
+        const accordionContainer = document.querySelector('.cyber-accordion');
+        const accItems = document.querySelectorAll('.acc-item');
+
+        accItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                accItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+        accordionContainer.addEventListener('mouseleave', () => {
+            accItems.forEach(i => i.classList.remove('active'));
         });
 
-        function InitiateDoubleLayerBootSequence(TargetUrlDestination, TargetDeviceIdentifierName) {
-            const PreFlightCheckOverlayLayer = document.getElementById('PreFlightCheckOverlayLayer');
-            const PreFlightStatusText = document.getElementById('PreFlightStatusText');
-            const CyberneticTerminalOverlayLayer = document.getElementById('CyberneticTerminalOverlayLayer');
-            const TerminalLogOutputContainer = document.getElementById('TerminalLogOutputContainer');
-            
-            PreFlightCheckOverlayLayer.classList.add('active-state');
-            
-            const PreFlightSteps = ["CEK KONDISI...", "CEK GPU...", "SIAPIN MEMORY...", "AMAN TERKENDALI."];
-            let StepIndex = 0;
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorCircle = document.querySelector('.cursor-circle');
+        const tooltip = document.getElementById('tooltip');
 
-            const PreFlightInterval = setInterval(() => {
-                if(StepIndex < PreFlightSteps.length) {
-                    PreFlightStatusText.innerText = PreFlightSteps[StepIndex];
-                    StepIndex++;
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.1 });
+            gsap.to(cursorCircle, { x: e.clientX, y: e.clientY, duration: 0.3 });
+
+            const hovered = document.elementFromPoint(e.clientX, e.clientY);
+            const tooltipText = hovered?.closest('[data-tooltip]')?.getAttribute('data-tooltip');
+
+            if(tooltipText) {
+                tooltip.innerText = tooltipText;
+                tooltip.classList.add('active');
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+                cursorCircle.style.borderColor = "var(--accent)";
+                cursorCircle.style.width = "50px"; cursorCircle.style.height = "50px";
+                cursorCircle.style.background = "rgba(255,255,255,0.05)";
+            } else {
+                tooltip.classList.remove('active');
+                cursorCircle.style.borderColor = "rgba(255,255,255,0.3)";
+                cursorCircle.style.width = "40px"; cursorCircle.style.height = "40px";
+                cursorCircle.style.background = "transparent";
+            }
+        });
+
+        function runBoot(url, mode) {
+            const pre = document.getElementById('preflight');
+            const txt = document.getElementById('preflightTxt');
+            const term = document.getElementById('terminal');
+            const out = document.getElementById('termOut');
+            
+            pre.style.display = 'flex';
+            let steps = ["CHECKING GPU...", "MEMORY OK...", "OPTIMIZING...", "READY."];
+            let i = 0;
+            
+            let t = setInterval(() => {
+                if(i < steps.length) {
+                    txt.innerText = steps[i];
+                    i++;
                 } else {
-                    clearInterval(PreFlightInterval);
-                    PreFlightCheckOverlayLayer.classList.remove('active-state');
-                    ExecuteTerminalBootSequenceForTargetDevice(TargetUrlDestination, TargetDeviceIdentifierName, CyberneticTerminalOverlayLayer, TerminalLogOutputContainer);
+                    clearInterval(t);
+                    pre.style.display = 'none';
+                    term.style.display = 'block';
+                    runTerm(url, mode, out);
                 }
-            }, 800);
+            }, 500);
         }
 
-        function ExecuteTerminalBootSequenceForTargetDevice(TargetUrlDestination, TargetDeviceIdentifierName, TerminalLayer, LogContainer) {
-            TerminalLayer.classList.add('active-state'); 
-            LogContainer.innerHTML = ''; 
-
-            const TerminalBootSequenceLogEntries = [
-                `> TARGET SYSTEM: ${TargetDeviceIdentifierName}`,
-                "> NYAMBUNGIN KONEKSI...",
-                "> JEBOL FIREWALL...",
-                "> INJECT ASET...",
-                "> OPTIMASI RENDER...",
-                "> DITERIMA. GASKEUN."
-            ];
-
-            let CurrentLogLineIndex = 0;
-
-            function RenderTerminalLogEntryRecursively() {
-                if (CurrentLogLineIndex < TerminalBootSequenceLogEntries.length) {
-                    const NewLogLineElement = document.createElement('div');
-                    NewLogLineElement.className = 'terminal-log-entry-line';
-                    NewLogLineElement.innerText = TerminalBootSequenceLogEntries[CurrentLogLineIndex];
-                    LogContainer.appendChild(NewLogLineElement);
-                    CurrentLogLineIndex++;
-                    setTimeout(RenderTerminalLogEntryRecursively, 120); 
-                } else {
-                    setTimeout(() => {
-                        window.location.href = TargetUrlDestination;
-                    }, 500);
-                }
+        function runTerm(url, mode, container) {
+            container.innerHTML = '';
+            const logs = [`> TARGET: ${mode}`, `> INITIALIZING...`, `> SECURITY BYPASS...`, `> ACCESS GRANTED.`];
+            let k = 0;
+            function line() {
+                if(k < logs.length) {
+                    let d = document.createElement('div'); d.innerText = logs[k]; d.style.marginBottom = '5px';
+                    container.appendChild(d); k++; setTimeout(line, 150);
+                } else { setTimeout(() => window.location.href = url, 500); }
             }
-            RenderTerminalLogEntryRecursively();
-        }
-
-        const BentoGridContainer = document.getElementById('BentoGridContainer');
-        if(BentoGridContainer) {
-            BentoGridContainer.onmousemove = MouseEventData => {
-                for(const SingleBentoCard of BentoGridContainer.getElementsByClassName('bento-grid-card-item')) {
-                    const CardBoundingRect = SingleBentoCard.getBoundingClientRect();
-                    const RelativeMousePositionX = MouseEventData.clientX - CardBoundingRect.left;
-                    const RelativeMousePositionY = MouseEventData.clientY - CardBoundingRect.top;
-                    SingleBentoCard.style.setProperty('--mouse-x', `${RelativeMousePositionX}px`);
-                    SingleBentoCard.style.setProperty('--mouse-y', `${RelativeMousePositionY}px`);
-                }
-            }
+            line();
         }
     </script>
 </body>
