@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SSRP HELPER - By PuddingMilki v1.4.0</title>
+    <title>SSRP HELPER - By PuddingMilki v1.5</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -254,6 +254,58 @@
             .multi-asset-management-strip { height: 80px; }
             .asset-thumbnail-container { min-width: 80px; }
         }
+
+        /* STYLE KHUSUS SHORTCUT TEKS */
+.shortcut-text-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.shortcut-text-btn {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #ccc;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.2s;
+    position: relative;
+    padding-right: 20px; /* Space buat tombol hapus */
+}
+
+.shortcut-text-btn:hover {
+    background: #222;
+    border-color: var(--primary-accent-color);
+    color: white;
+}
+
+.shortcut-text-delete {
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+.shortcut-text-delete:hover {
+    background: #ef4444;
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -285,7 +337,7 @@
 </ul>
 
 
-                <div style="text-align:center; color:#666; font-size:11px; margin-top:20px;">SSRP HELPER v1.4.0</div>
+                <div style="text-align:center; color:#666; font-size:11px; margin-top:20px;">SSRP HELPER v1.5.0</div>
             </div>
         </div>
     </div>
@@ -316,7 +368,14 @@
             <button class="modal-close-btn" onclick="toggleModal('changelogModal')">×</button>
             <div class="modal-title">CHANGELOG</div>
             <div class="modal-body">
-                <h4>v1.4 (LATEST)</h4>
+                <h4>v1.5 (LATEST)</h4>
+                <ul>
+                    <li>Update date: 31/12/2025</li>
+                    <li><b>PERBAIKAN</b> Bug kecil pada sistem shortcut teks.</li>
+                    <li><b>PENAMBAHAN</b> Fitur Masukin nama dan sinkron terhadap /me,says,dll</li>
+                    <li><b>PENAMBAHAN</b> Fitur Shortcut jadi bisa masukin shortcut sesuka kita agar lebih memudahkan tanpa ribet</li>
+                </ul>
+                <h4>v1.4 </h4>
                 <ul>
                     <li><b>Info Tambahan:</b> Add tombol Readme & Changelog.</li>
                     <li> Remodel Tombol tombol dll</li>
@@ -389,13 +448,14 @@
             <div>
                  <span class="ui-section-designator-label" style="margin-top:5px; border:none; padding:0;">ZONA YANG DI SELECT : <span id="currentLayerLabel" style="color:#dc2626">KIRI ATAS</span></span>
                 <div class="chatlog-toolbar-wrapper" style="margin-top:5px;">
-                    <div class="toolbar-primary-actions">
-                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('says: ')">says</button>
-                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('shouts: ')">shouts</button>
-                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('* Player_Name')">/Me</button>
-                        <button class="toolbar-action-button" onclick="injectTemplateStringIntoEditor('Player_Name ')">Nama</button>
-                        
-                        <div class="chromatic-selector-wrapper">
+                    <input type="text" id="globalPlayerNameInput" class="filename-input" style="margin-bottom: 5px; padding: 6px;" placeholder="Set Nama Karakter (Cth: Ucok_Slebew)">
+                             <div class="toolbar-primary-actions">
+                            <button class="toolbar-action-button" onclick="insertDialogue('says')">says</button>
+                            <button class="toolbar-action-button" onclick="insertDialogue('shouts')">shouts</button>
+                            <button class="toolbar-action-button" onclick="insertDynamicName('me')">/Me</button>
+                            <button class="toolbar-action-button" onclick="insertDynamicName('name')">Nama</button>
+                            
+                             <div class="chromatic-selector-wrapper">            
                             <div class="chromatic-swatch" style="background:#C2A2DA" onclick="embedChromaticHexCodeToSelection('{C2A2DA}')" title="/Me (Ungu)"></div>
                             <div class="chromatic-swatch" style="background:#ef4444" onclick="embedChromaticHexCodeToSelection('{FF0000}')" title="Merah"></div>
                             <div class="chromatic-swatch" style="background:#3b82f6" onclick="embedChromaticHexCodeToSelection('{3498db}')" title="Biru"></div>
@@ -406,7 +466,16 @@
                         </div>
                     </div>
                 </div>
-
+                <div style="margin-top: 8px; border-top: 1px dashed #333; padding-top: 8px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+        <span style="font-size: 10px; font-weight: 700; color: #666;">QUICK TEXT / TEMPLATE</span>
+        <button class="header-btn" onclick="toggleModal('textShortcutModal')" style="background: var(--primary-accent-color); color: white; border:none; padding: 2px 6px;">+ BARU</button>
+    </div>
+    
+    <div id="textShortcutContainer" class="shortcut-text-grid">
+        <span style="font-size: 10px; color: #444; font-style: italic;">Belum ada template.</span>
+    </div>
+</div>
                 <textarea id="primaryTextInputInterface" class="text-editor-input-area" placeholder="Tempel (Paste) chatlog kamu di sini..." oninput="updateActiveLayerData()"></textarea>
                 
                 <div style="display:flex; justify-content:space-between; margin-top:5px;">
@@ -436,6 +505,9 @@
                     <input type="range" id="inputObjYController" min="0" max="100" value="50" step="0.1" oninput="updateActiveObjectData()">
                     <span class="parameter-value-display" id="displayObjY">50%</span>
                 </div>
+                
+                
+
                  <button class="toolbar-action-button" style="width:100%; margin-top:2px; padding:5px;" onclick="removeActiveObject()">HAPUS OBJEK</button>
             </div>
 
@@ -496,7 +568,7 @@
 
             <footer class="application-footer-copyright">
                 &copy; 2025 PuddingMilki. Hak Cipta Dilindungi. <br>
-                SSRP HELPER V1.4.0 RELEASE  || DIBUAT KHUSUS UNTUK ROLEPLAYERS SEJATI.
+                SSRP HELPER V1.5.0 SHORTCUT  || DIBUAT KHUSUS UNTUK ROLEPLAYERS SEJATI.
             </footer>
         </div>
 
@@ -514,6 +586,27 @@
             <div class="multi-asset-management-strip" id="multiAssetFilmstripContainer">
             </div>
         </div>
+
+        <div id="textShortcutModal" class="modal-overlay">
+    <div class="modal-content-box" style="width: 400px;">
+        <button class="modal-close-btn" onclick="toggleModal('textShortcutModal')">×</button>
+        <div class="modal-title">BUAT SHORTCUT TEKS</div>
+        <div class="modal-body">
+            
+            <label style="font-size:11px; color:#888; display:block; margin-bottom:5px;">NAMA TOMBOL (Label)</label>
+            <input type="text" id="tsLabelInput" class="filename-input" placeholder="Cth: Lari, Ketawa, Radio">
+
+            <label style="font-size:11px; color:#888; display:block; margin-bottom:5px;">ISI TEKS CHATLOG</label>
+            <textarea id="tsContentInput" class="text-editor-input-area" style="height:80px; margin-bottom:15px;" placeholder="Cth: * Ucup berlari sekuat tenaga *"></textarea>
+
+            <div style="display:flex; gap:5px; margin-bottom:15px;">
+                 <span style="font-size:10px; color:#666;">Tips: Bisa pakai kode warna {FF0000} di sini.</span>
+            </div>
+
+            <button class="global-action-button download-action" style="width:100%;" onclick="saveTextShortcut()">SIMPAN TEMPLATE</button>
+        </div>
+    </div>
+</div>
     </div>
 
     <script>
@@ -528,6 +621,9 @@
         
         let multiImageRepository = [];
         let activeAssetIndexReference = -1;
+        let imgBrightness = 100;
+let imgContrast = 100;
+let imgBlur = 0; // <--- Tambahkan ini
         let exportCounter = 1;
         let undoStack = [];
         let redoStack = [];
@@ -737,9 +833,10 @@
 
         function initiateCanvasRenderingSequence() {
             graphicsContext2D.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
+            graphicsContext2D.save();
             if (activeAssetIndexReference !== -1 && multiImageRepository[activeAssetIndexReference]) {
                 const activeImg = multiImageRepository[activeAssetIndexReference].img;
+                graphicsContext2D.filter = `brightness(${imgBrightness}%) contrast(${imgContrast}%) blur(${imgBlur}px)`;
                 graphicsContext2D.drawImage(activeImg, 0, 0, canvasElement.width, canvasElement.height);
             } else {
                 graphicsContext2D.fillStyle = '#080808';
@@ -749,7 +846,7 @@
                 graphicsContext2D.textAlign = 'center';
                 graphicsContext2D.fillText("TIDAK ADA FOTO BACKGROUND", canvasElement.width / 2, canvasElement.height / 2);
             }
-
+            graphicsContext2D.restore();
             if (objectData.img) {
                 const objWidth = (canvasElement.width * (objectData.size / 100));
                 const objHeight = objWidth * (objectData.img.height / objectData.img.width); 
@@ -1117,6 +1214,131 @@
             initializeGlobalDragAndDropEventListeners();
             updateActiveLayerData(); 
         };
+
+        // --- FITUR NAMA DINAMIS ---
+    function insertDynamicName(mode) {
+        // Ambil nilai dari input nama
+        const nameInput = document.getElementById('globalPlayerNameInput');
+        // Jika kosong, pakai default "Player_Name", jika ada isinya pakai isi input
+        const finalName = nameInput.value.trim() !== "" ? nameInput.value.trim() : "Player_Name";
+
+        if (mode === 'me') {
+            // Format untuk /me: * Nama_Player [spasi]
+            injectTemplateStringIntoEditor('* ' + finalName + ' ');
+        } else {
+            // Format untuk tombol Nama: Nama_Player [spasi]
+            injectTemplateStringIntoEditor(finalName + ' ');
+        }
+    }
+
+    function insertDialogue(type) {
+        // Ambil elemen input nama
+        const nameInput = document.getElementById('globalPlayerNameInput');
+        // Cek jika kosong pakai "Player_Name", jika ada isi pakai isinya
+        const finalName = nameInput.value.trim() !== "" ? nameInput.value.trim() : "Player_Name";
+
+        if (type === 'says') {
+            injectTemplateStringIntoEditor(finalName + ' says: ');
+        } else if (type === 'shouts') {
+            injectTemplateStringIntoEditor(finalName + ' shouts: ');
+        }
+    }
+
+    function updateImageFilters() {
+    // Ambil nilai dari HTML
+    imgBrightness = document.getElementById('inputBrightness').value;
+    imgContrast = document.getElementById('inputContrast').value;
+    imgBlur = document.getElementById('inputBlur').value; // Ambil nilai Blur
+    
+    // Update tampilan angka di samping slider
+    document.getElementById('displayBrightness').innerText = imgBrightness + '%';
+    document.getElementById('displayContrast').innerText = imgContrast + '%';
+    document.getElementById('displayBlur').innerText = imgBlur + 'px'; // Update label Blur
+    
+    // Render ulang
+    initiateCanvasRenderingSequence();
+}
+
+// --- FITUR SHORTCUT TEKS (QUICK CHAT) ---
+let textShortcutList = [];
+
+// Load shortcut dari LocalStorage pas web dibuka (biar ga ilang pas refresh)
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('ssrp_text_shortcuts');
+    if (saved) {
+        textShortcutList = JSON.parse(saved);
+        renderTextShortcuts();
+    }
+});
+
+function saveTextShortcut() {
+    const label = document.getElementById('tsLabelInput').value;
+    const content = document.getElementById('tsContentInput').value;
+
+    if (!label || !content) {
+        alert("Nama Label dan Isi Teks harus diisi!");
+        return;
+    }
+
+    const newShortcut = {
+        id: Date.now(),
+        label: label,
+        content: content
+    };
+
+    textShortcutList.push(newShortcut);
+    
+    // Simpan ke memori browser
+    localStorage.setItem('ssrp_text_shortcuts', JSON.stringify(textShortcutList));
+    
+    renderTextShortcuts();
+    toggleModal('textShortcutModal'); // Tutup modal
+    
+    // Reset Input
+    document.getElementById('tsLabelInput').value = '';
+    document.getElementById('tsContentInput').value = '';
+}
+
+function renderTextShortcuts() {
+    const container = document.getElementById('textShortcutContainer');
+    container.innerHTML = '';
+
+    if (textShortcutList.length === 0) {
+        container.innerHTML = '<span style="font-size: 10px; color: #444; font-style: italic;">Belum ada template.</span>';
+        return;
+    }
+
+    textShortcutList.forEach((item, index) => {
+        const btn = document.createElement('div');
+        btn.className = 'shortcut-text-btn';
+        btn.onclick = () => injectTemplateStringIntoEditor(item.content); // Pake fungsi inject yg uda ada
+        
+        // Label Text
+        const textSpan = document.createElement('span');
+        textSpan.innerText = item.label;
+        btn.appendChild(textSpan);
+
+        // Tombol Hapus (X)
+        const delBtn = document.createElement('div');
+        delBtn.className = 'shortcut-text-delete';
+        delBtn.innerHTML = '×';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteTextShortcut(index);
+        };
+        btn.appendChild(delBtn);
+
+        container.appendChild(btn);
+    });
+}
+
+function deleteTextShortcut(index) {
+    if(confirm('Hapus template ini?')) {
+        textShortcutList.splice(index, 1);
+        localStorage.setItem('ssrp_text_shortcuts', JSON.stringify(textShortcutList));
+        renderTextShortcuts();
+    }
+}
     </script>
 </body>
 </html>
